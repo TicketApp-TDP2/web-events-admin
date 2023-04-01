@@ -3,15 +3,28 @@ import {
   createBrowserRouter,
   RouterProvider
 } from "react-router-dom";
-import Root from "./routes/root";
+import { LandingScreen } from './screens/LandingScreen/LandingScreen';
+import { EventsScreen } from './screens/EventsScreen/EventsScreen';
+import { NewEventScreen } from './screens/NewEventScreen/NewEventScreen';
+import { DashboardScreen } from './screens/DashboardScreen/DashboardScreen';
+import { ProfileScreen } from './screens/ProfileScreen/ProfileScreen';
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Root />
+    element: <LandingScreen />
+  }, {
+    path: '/event/new',
+    element: <NewEventScreen />
   }, {
     path: '/events',
-    element: <Root /> // replace with Events page
+    element: <EventsScreen />
+  }, {
+    path: '/dashboard',
+    element: <DashboardScreen />
+  }, {
+    path: '/profile',
+    element: <ProfileScreen />
   }
 ])
 
