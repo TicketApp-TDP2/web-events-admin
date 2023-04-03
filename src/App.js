@@ -8,6 +8,7 @@ import { EventsScreen } from './screens/EventsScreen/EventsScreen';
 import { NewEventScreen } from './screens/NewEventScreen/NewEventScreen';
 import { DashboardScreen } from './screens/DashboardScreen/DashboardScreen';
 import { ProfileScreen } from './screens/ProfileScreen/ProfileScreen';
+import { createTheme, ThemeProvider} from '@mui/material/styles';
 
 const router = createBrowserRouter([
   {
@@ -26,11 +27,40 @@ const router = createBrowserRouter([
     path: '/profile',
     element: <ProfileScreen />
   }
-])
+]);
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#61309b',
+      contrastText: '#fff',
+    },
+    secondary: {
+      main: '#8978C7',
+      contrastText: '#fff',
+    },
+    third: {
+        main: '#94a5dd',
+        contrastText: '#fff',
+    },
+  },
+  typography: {
+    button: {
+      textTransform: 'none'
+    },
+    fontFamily: 'Urbanist',
+    fontSize: 16,
+    fontWeightLight: 300,
+    fontWeightRegular: 400,
+    fontWeightMedium: 500,
+  }
+});
 
 function App() {
   return (
+    <ThemeProvider theme={theme}>
       <RouterProvider router={router} />
+    </ThemeProvider>
   );
 }
 

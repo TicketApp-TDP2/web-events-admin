@@ -1,31 +1,15 @@
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 import SideBar from '../../components/SideBar';
-
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#61309b',
-      contrastText: '#fff',
-    },
-    secondary: {
-      main: '#8978C7',
-      contrastText: '#fff',
-    },
-    third: {
-        main: '#94a5dd',
-        contrastText: '#fff',
-    },
-  },
-});
+import { Typography, Box } from '@mui/material';
 
 export const ProfileScreen = () => {
     return <>
-    <ThemeProvider theme={theme}>
-        <SideBar>
-            <>
-            PROFILEE
-            </>
-        </SideBar>
-      </ThemeProvider>
+    <Box sx={{ display: 'flex' }}>
+      <SideBar/>
+        <Box component="main"
+          sx={{ flexGrow: 1, p: 3 }}
+        >
+          <Typography variant="h3" sx={{ marginRight: 2, marginLeft: 2 }}>Profile</Typography>
+        </Box>
+    </Box>
     </>
 }

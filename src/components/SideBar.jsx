@@ -5,29 +5,13 @@ import {
     ListItemText,
     Link,
 } from '@mui/material';
-import { createTheme, ThemeProvider, styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import { Link as RouterLink } from 'react-router-dom';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
 
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#61309b',
-      contrastText: '#fff',
-    },
-    secondary: {
-      main: '#8978C7',
-      contrastText: '#fff',
-    },
-    third: {
-        main: '#94a5dd',
-        contrastText: '#fff',
-    },
-  },
-});
 
 const DRAWER_WIDTH = 225;
 
@@ -60,18 +44,16 @@ export default function SideBar() {
   );
 
   return <>
-    <ThemeProvider theme={theme}>
-      <RootStyle>
-        <Drawer
-            PaperProps={{ sx: { backgroundColor: '#8978C7', color: '#fff', borderRightStyle: 'dashed', width: DRAWER_WIDTH } }}
-            variant="permanent"
-            anchor="left"
-            open
-        >
-            LOGO
-            {getList()}
-        </Drawer>
-      </RootStyle>
-    </ThemeProvider>
+    <RootStyle>
+      <Drawer
+          PaperProps={{ sx: { backgroundColor: '#8978C7', color: '#fff', borderRightStyle: 'dashed', width: DRAWER_WIDTH } }}
+          variant="permanent"
+          anchor="left"
+          open
+      >
+          <img src="/Logo.png" alt="logo" />
+          {getList()}
+      </Drawer>
+    </RootStyle>
   </>
 }
