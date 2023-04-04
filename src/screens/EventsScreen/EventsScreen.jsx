@@ -2,6 +2,7 @@ import { Button, Typography, Grid, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SideBar from '../../components/SideBar';
+import { EventsTable } from '../../components/EventsTable';
 
 export const EventsScreen = () => {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ export const EventsScreen = () => {
             </Button>
           </Grid>
         </Grid>
+        <EventsTable/>
       </Box>
     </Box>
   </>
