@@ -40,8 +40,12 @@ const theme = createTheme({
       contrastText: '#fff',
     },
     third: {
-        main: '#94a5dd',
+        main: '#beb4e8',
         contrastText: '#fff',
+    },
+    fourth: {
+      main: '#94a5dd',
+      contrastText: '#fff',
     },
   },
   typography: {

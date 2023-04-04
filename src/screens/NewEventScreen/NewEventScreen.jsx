@@ -12,7 +12,7 @@ export const NewEventScreen = () => {
         <SideBar/>
         <Box component="main"
         sx={{ flexGrow: 1, p: 3 }}>
-            <Typography variant="h3" sx={{ marginRight: 2, marginLeft: 2, marginBottom:1 }}>Agregar Evento</Typography>
+            <Typography variant="h3" sx={{ marginRight: 2, marginLeft: 2, marginBottom:1 }} color="primary">Agregar Evento</Typography>
             <Divider variant="middle"/>
             <NewEventForm/>
         </Box>

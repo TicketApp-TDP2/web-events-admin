@@ -8,7 +8,7 @@ export const DashboardScreen = () => {
         <Box component="main"
           sx={{ flexGrow: 1, p: 3 }}
         >
-          <Typography variant="h3" sx={{ marginRight: 2, marginLeft: 2 }}>Dashboard</Typography>
+          <Typography variant="h3" sx={{ marginRight: 2, marginLeft: 2 }}  color="primary">Dashboard</Typography>
         </Box>
     </Box>
   </>
