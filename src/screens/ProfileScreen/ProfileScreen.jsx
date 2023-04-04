@@ -50,6 +50,17 @@ export const ProfileScreen = () => {
           </Grid>
         <Divider variant="middle"/>
         <EditProfile/>
+        <Grid
+            container
+            direction="column"
+            alignItems="center"
+            justifyContent="center"
+            sx={{ paddingTop: 5, paddingBottom: 2}}
+        >
+            <Button variant="contained" size="large" color="primary" onClick={() => setOpenEditProfile(false)} >
+                Confirmar
+            </Button>
+        </Grid>
       </Box>
       )}
     </Box>

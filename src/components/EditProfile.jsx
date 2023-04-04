@@ -10,7 +10,9 @@ const defaultValues = {
 }
 
 export const EditProfile = () => {
+
     const [userData, setUserData] = useState(defaultValues);
+
     return <>
         <Stack spacing={2} sx={{ pl: 3, pr: 3 }}>
             <Grid
