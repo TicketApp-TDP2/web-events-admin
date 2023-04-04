@@ -4,6 +4,8 @@ import './index.css';
 import App from './App';
 import { initializeApp } from "firebase/app";
 import { getStorage } from "firebase/storage";
+import { getAuth } from "firebase/auth";
+import { GoogleAuthProvider } from "firebase/auth";
 
 export const FirebaseContext = React.createContext({});
 
@@ -17,8 +19,10 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 const storage = getStorage(app);
-const firebase = {storage}
+const provider = new GoogleAuthProvider();
+const firebase = {storage, auth, provider}
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
