@@ -31,7 +31,7 @@ const data = [
 
 export default function SideBar() {
   const getList = () => (
-    <div style={{ width: 250 }}>
+    <div style={{ width: DRAWER_WIDTH }}>
       {data.map((item, index) => (
         <Link underline="none" component={RouterLink} to={item.navigate}>
             <ListItem key={index}>
@@ -51,7 +51,7 @@ export default function SideBar() {
           anchor="left"
           open
       >
-          <img src="/Logo.png" alt="logo" />
+          <img src="/Logo2.png" alt="logo" />
           {getList()}
       </Drawer>
     </RootStyle>
