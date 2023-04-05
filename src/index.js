@@ -10,12 +10,12 @@ import { GoogleAuthProvider } from "firebase/auth";
 export const FirebaseContext = React.createContext({});
 
 const firebaseConfig = {
-    apiKey: process.env.FIREBASE_APIKEY,
+    apiKey: process.env.REACT_APP_FIREBASE_APIKEY,
     authDomain: "ticketapp-public.firebaseapp.com",
     projectId: "ticketapp-public",
     storageBucket: "ticketapp-public.appspot.com",
     messagingSenderId: "281878738338",
-    appId: process.env.FIREBASE_APPID
+    appId: process.env.REACT_APP_FIREBASE_APPID
 };
 
 const app = initializeApp(firebaseConfig);
