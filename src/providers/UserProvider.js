@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { getUser } from "../services/userService";
+import { getOrganizer } from "../services/organizerService";
 
 export const UserContext = React.createContext({});
 
@@ -7,7 +7,7 @@ function UserProvider({ children }) {
   const [user, setUser] = useState({});
 
   const fetchUser = useCallback(async (id) => {
-    const response = await getUser(id);
+    const response = await getOrganizer(id);
     localStorage.setItem("user", JSON.stringify(response));
     setUser(response);
   }, []);

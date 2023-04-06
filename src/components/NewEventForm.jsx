@@ -5,7 +5,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DesktopTimePicker } from '@mui/x-date-pickers/DesktopTimePicker';
-import { ref, uploadBytes, getDownloadURL, connectStorageEmulator } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { FirebaseContext } from '../index';
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -27,6 +27,8 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import MUIEditor, { MUIEditorState } from "react-mui-draft-wysiwyg";
 import { toHTML } from 'react-mui-draft-wysiwyg';
 import {v4} from 'uuid';
+import { createEvent } from "../services/eventService";
+import { UserContext } from "../providers/UserProvider";
 
 const modalStyle = {
     position: 'absolute',
@@ -42,14 +44,14 @@ const modalStyle = {
 const today = dayjs();
 const todayStartOfTheDay = today.startOf('day');
 const defaultValues = {
-    title: '',
+    name: '',
     date: today,
     type: '',
     location: '',
     start_time: todayStartOfTheDay,
     end_time: todayStartOfTheDay,
     //price: '',
-    capacity: '',
+    vacants: '',
     description: '',
     images_urls: [{
         url: '/static/Rectangle.png',
@@ -61,23 +63,44 @@ const defaultValues = {
 const agendaDefaultValues = {
     start_time: todayStartOfTheDay,
     end_time: todayStartOfTheDay,
-    responsable: '',
-    title: '',
+    responsible: '',
+    name: '',
     description: '',
 }
 const faqDefaultValues = {
     question: '',
     answer: '',
 }
+const types = {
+    Arte_y_Cultura: "Arte y Cultura",
+    Musica: "Música",
+    Danza: "Danza",
+    Moda: "Moda",
+    Bellas_Artes: "Bellas Artes",
+    Cine: "Cine",
+    Turismo: "Turismo",
+    Deporte: "Deporte",
+    Gastronomia: "Gastronomía",
+    Educacion: "Educación",
+    Empresa: "Empresa",
+    Capacitacion: "Capacitación",
+    Entretenimiento: "Entretenimiento",
+    Tecnologia: "Tecnología",
+    Infantil: "Infantil",
+    Debate: "Debate",
+    Conmemoracion: "Conmemoración",
+    Religion: "Religión",
+    Convencion: "Convención",
+}
 
 export const NewEventForm = () => {
 
     const firebaseContext = useContext(FirebaseContext);
+    const { user } = useContext(UserContext);
 
     const [eventData, setEventData] = useState(defaultValues);
     const [agendaData, setAgendaData] = useState(agendaDefaultValues);
     const [faqData, setFaqData] = useState(faqDefaultValues);
-    const [openAddImageModal, setOpenAddImageModal] = useState(false);
     const [loadingImage, setLoadingImage] = useState(false);
     const [openModal, setOpenModal] = useState(false);
     const [openFAQ, setOpenFAQ] = useState(false);
@@ -102,7 +125,6 @@ export const NewEventForm = () => {
             setEventData({...eventData, images_urls: [...eventData.images_urls, { url, default: true }]});
         }
         setEventData({...eventData, images_urls: [...eventData.images_urls, { url, default: false }]});
-        setOpenAddImageModal(false);
     }
 
     async function uploadFile(file) {
@@ -179,8 +201,8 @@ export const NewEventForm = () => {
         const newElement = {
             start_time: agendaData.start_time,
             end_time: agendaData.end_time,
-            responsable: agendaData.responsable,
-            title: agendaData.title,
+            responsible: agendaData.responsible,
+            name: agendaData.name,
             description: agendaData.description,
         };
         const newAgenda = eventData.agenda.slice();
@@ -189,20 +211,32 @@ export const NewEventForm = () => {
         handleCloseModal();
     }
 
-    const handleCreateEvent = () => {
+    const handleCreateEvent = async () => {
+        const newImages = eventData.images_urls;
+        const previewImage = "";
+        eventData.images_urls.shift();
+        if (eventData.images_urls.length > 0){
+            newImages = eventData.images_urls.map((image) => image.url);
+            previewImage = newImages[0].url;
+        }
+        console.log("vacants", parseInt(eventData.vacants));
         const newValues = {
-            title: eventData.title,
-            date: eventData.date, //pasar a string y fecha sin hora
+            name: eventData.name,
+            date: eventData.date.format('YYYY-MM-DD'), //pasar a string y fecha sin hora
             type: eventData.type,
             location: eventData.location,
-            start_time: eventData.start_time, //pasar a string y formato hora min y AM/PM
-            end_time: eventData.end_time, //pasar a string y formato hora min y AM/PM
-            capacity: eventData.capacity,
+            start_time: eventData.start_time.format('HH:mm:ss'), //pasar a string y formato hora min y AM/PM
+            end_time: eventData.end_time.format('HH:mm:ss'), //pasar a string y formato hora min y AM/PM
+            vacants: parseInt(eventData.vacants),
             description: html,
-            images_urls: eventData.images_urls, //sacar la primera url que es la default
+            images: newImages, //sacar la primera url que es la default
+            preview_image: previewImage,
+            organizer: user.id, //obtener el id del usuario del local storage
             agenda: eventData.agenda, //para los campos de horarios: pasar a string y formato hora min y AM/PM
-            faqs: eventData.faqs,
+            FAQ: eventData.faqs,
         };
+        console.log("newValues", newValues);
+        await createEvent(newValues).then((result) => {console.log("response", result)});
     }
 
     return <>
@@ -210,10 +244,9 @@ export const NewEventForm = () => {
         <ImageModal />
         <Stack sx={{ pt: 2}}>
             <TextField
-                name="title"
                 label="Nombre del evento"
-                value={eventData.title}
-                onChange={(event) => setEventData({...eventData, title: event.target.value})}
+                value={eventData.name}
+                onChange={(event) => setEventData({...eventData, name: event.target.value})}
             />
         </Stack>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -262,9 +295,25 @@ export const NewEventForm = () => {
                         onChange={handleTypeChange}
                         sx={{width: "95%", pr:2}}
                     >
-                        <MenuItem value={10}>Ten</MenuItem>
-                        <MenuItem value={20}>Twenty</MenuItem>
-                        <MenuItem value={30}>Thirty</MenuItem>
+                        <MenuItem value={types.Arte_y_Cultura}>{types.Arte_y_Cultura}</MenuItem>
+                        <MenuItem value={types.Musica}>{types.Musica}</MenuItem>
+                        <MenuItem value={types.Danza}>{types.Danza}</MenuItem>
+                        <MenuItem value={types.Moda}>{types.Moda}</MenuItem>
+                        <MenuItem value={types.Bellas_Artes}>{types.Bellas_Artes}</MenuItem>
+                        <MenuItem value={types.Cine}>{types.Cine}</MenuItem>
+                        <MenuItem value={types.Turismo}>{types.Turismo}</MenuItem>
+                        <MenuItem value={types.Deporte}>{types.Deporte}</MenuItem>
+                        <MenuItem value={types.Gastronomia}>{types.Gastronomia}</MenuItem>
+                        <MenuItem value={types.Educacion}>{types.Educacion}</MenuItem>
+                        <MenuItem value={types.Empresa}>{types.Empresa}</MenuItem>
+                        <MenuItem value={types.Capacitacion}>{types.Capacitacion}</MenuItem>
+                        <MenuItem value={types.Entretenimiento}>{types.Entretenimiento}</MenuItem>
+                        <MenuItem value={types.Tecnologia}>{types.Tecnologia}</MenuItem>
+                        <MenuItem value={types.Infantil}>{types.Infantil}</MenuItem>
+                        <MenuItem value={types.Debate}>{types.Debate}</MenuItem>
+                        <MenuItem value={types.Conmemoracion}>{types.Conmemoracion}</MenuItem>
+                        <MenuItem value={types.Religion}>{types.Religion}</MenuItem>
+                        <MenuItem value={types.Convencion}>{types.Convencion}</MenuItem>
                     </Select>
                 </FormControl>
             </Grid>
@@ -273,6 +322,8 @@ export const NewEventForm = () => {
                 id="outlined-number"
                 label="Vacantes"
                 type="number"
+                value={eventData.vacants}
+                onChange={(event) => setEventData({...eventData, vacants: event.target.value})}
                 InputLabelProps={{
                     shrink: true,
                 }}
@@ -300,6 +351,7 @@ export const NewEventForm = () => {
                     <ImageListItem key={item.url}>
                         <img
                             src={`${item.url}?w=164&h=164&fit=crop&auto=format`}
+                            alt="add new"
                             srcSet={`${item.url}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
                             loading="lazy"
                         />
@@ -396,8 +448,8 @@ export const NewEventForm = () => {
                         <TextField
                             label="Responsable/Orador"
                             sx={{width: "100%"}}
-                            value={agendaData.responsable}
-                            onChange={(event) => setAgendaData({...agendaData, responsable: event.target.value})}
+                            value={agendaData.responsible}
+                            onChange={(event) => setAgendaData({...agendaData, responsible: event.target.value})}
                         />
                     </Grid>
                 </Grid>
@@ -411,8 +463,8 @@ export const NewEventForm = () => {
                         <TextField
                             label="Titulo"
                             sx={{width: "100%"}}
-                            value={agendaData.title}
-                            onChange={(event) => setAgendaData({...agendaData, title: event.target.value})}
+                            value={agendaData.name}
+                            onChange={(event) => setAgendaData({...agendaData, name: event.target.value})}
                         />
                     </Grid>
                 </Grid>
@@ -455,7 +507,7 @@ export const NewEventForm = () => {
                     <TimelineDot />
                     <TimelineConnector />
                 </TimelineSeparator>
-                <TimelineContent>{event.title}</TimelineContent>
+                <TimelineContent>{event.name}</TimelineContent>
                 </TimelineItem>
             </Timeline>
         ))}
