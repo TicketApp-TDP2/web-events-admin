@@ -31,9 +31,9 @@ export const LandingScreen = () => {
             createUser(newUser).then(async (res) => {
                 await fetchUser(res.id);
                 console.log("OK backend", res);
-                navigate('events');
             }).catch((err) => console.log("ERROR backend: ", err));
           }
+          navigate('events');
         }).catch((error) => {
             //Tirar un alert con el error
             console.log("error", error)
