@@ -4,36 +4,40 @@ import { useNavigate } from 'react-router-dom';
 import { useContext } from "react";
 import { signInWithPopup } from "firebase/auth";
 import { FirebaseContext } from '../../index';
-import { GoogleAuthProvider } from "firebase/auth";
+import { getAdditionalUserInfo } from "firebase/auth";
+import { createUser } from '../../services/userService';
+import { UserContext } from '../../providers/UserProvider';
 
 export const LandingScreen = () => {
     
     const firebaseContext = useContext(FirebaseContext);
+    const { fetchUser } = useContext(UserContext);
 
     const navigate = useNavigate();
 
     const handleLogIn = () => {
-        /*signInWithPopup(firebaseContext.auth, firebaseContext.provider)
+        signInWithPopup(firebaseContext.auth, firebaseContext.provider)
         .then((result) => {
-          // This gives you a Google Access Token. You can use it to access the Google API.
-          const credential = GoogleAuthProvider.credentialFromResult(result);
-          const token = credential.accessToken;
-          // The signed-in user info.
-          const user = result.user;
-          // IdP data available using getAdditionalUserInfo(result)
-          console.log("token", token);
-          console.log("user", user);
+          const additionalUserInfo = getAdditionalUserInfo(result)
+          if (additionalUserInfo.isNewUser){
+            const newUser = {
+                firstName: additionalUserInfo.profile.given_name,
+                lastName: additionalUserInfo.profile.family_name,
+                email: additionalUserInfo.profile.email,
+                birthDate: "2000-01-01",
+                idNumber: result.user.uid,
+                phoneNumber: "110001111",
+            }
+            createUser(newUser).then(async (res) => {
+                await fetchUser(res.id);
+                console.log("OK backend", res);
+                navigate('events');
+            }).catch((err) => console.log("ERROR backend: ", err));
+          }
         }).catch((error) => {
-          // Handle Errors here.
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          // The email of the user's account used.
-          const email = error.customData.email;
-          // The AuthCredential type that was used.
-          const credential = GoogleAuthProvider.credentialFromError(error);
-          // ...
+            //Tirar un alert con el error
+            console.log("error", error)
         });
-        navigate('events');*/
     }
 
     return <>
@@ -48,7 +52,7 @@ export const LandingScreen = () => {
             <img src="/Logo.png" alt="logo" />
             <Box sx={{ '& button': { m: 1, mt:2, } }}>
                 <div>
-                    <Button variant="contained" size="large" color="primary" startIcon={<GoogleIcon />} onClick={() => handleLogIn}>
+                    <Button variant="contained" size="large" color="primary" startIcon={<GoogleIcon />} onClick={() => handleLogIn()}>
                     Continuar con Google
                     </Button>
                 </div>
