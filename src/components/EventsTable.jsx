@@ -1,21 +1,21 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { useTheme } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableFooter from '@mui/material/TableFooter';
-import TablePagination from '@mui/material/TablePagination';
-import TableRow from '@mui/material/TableRow';
-import TableHead from '@mui/material/TableHead';
-import Paper from '@mui/material/Paper';
-import IconButton from '@mui/material/IconButton';
-import FirstPageIcon from '@mui/icons-material/FirstPage';
-import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
-import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
-import LastPageIcon from '@mui/icons-material/LastPage';
+import * as React from "react";
+import PropTypes from "prop-types";
+import { useTheme } from "@mui/material/styles";
+import Box from "@mui/material/Box";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableFooter from "@mui/material/TableFooter";
+import TablePagination from "@mui/material/TablePagination";
+import TableRow from "@mui/material/TableRow";
+import TableHead from "@mui/material/TableHead";
+import Paper from "@mui/material/Paper";
+import IconButton from "@mui/material/IconButton";
+import FirstPageIcon from "@mui/icons-material/FirstPage";
+import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
+import LastPageIcon from "@mui/icons-material/LastPage";
 
 function TablePaginationActions(props) {
   const theme = useTheme();
@@ -44,28 +44,36 @@ function TablePaginationActions(props) {
         disabled={page === 0}
         aria-label="first page"
       >
-        {theme.direction === 'rtl' ? <LastPageIcon /> : <FirstPageIcon />}
+        {theme.direction === "rtl" ? <LastPageIcon /> : <FirstPageIcon />}
       </IconButton>
       <IconButton
         onClick={handleBackButtonClick}
         disabled={page === 0}
         aria-label="previous page"
       >
-        {theme.direction === 'rtl' ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
+        {theme.direction === "rtl" ? (
+          <KeyboardArrowRight />
+        ) : (
+          <KeyboardArrowLeft />
+        )}
       </IconButton>
       <IconButton
         onClick={handleNextButtonClick}
         disabled={page >= Math.ceil(count / rowsPerPage) - 1}
         aria-label="next page"
       >
-        {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
+        {theme.direction === "rtl" ? (
+          <KeyboardArrowLeft />
+        ) : (
+          <KeyboardArrowRight />
+        )}
       </IconButton>
       <IconButton
         onClick={handleLastPageButtonClick}
         disabled={page >= Math.ceil(count / rowsPerPage) - 1}
         aria-label="last page"
       >
-        {theme.direction === 'rtl' ? <FirstPageIcon /> : <LastPageIcon />}
+        {theme.direction === "rtl" ? <FirstPageIcon /> : <LastPageIcon />}
       </IconButton>
     </Box>
   );
@@ -82,20 +90,40 @@ function createData(name, location, date, capacity) {
 }
 
 const rows = [
-  createData('Festival de Música en Vivo', 'Palermo, Buenos Aires', '2023-05-24', '150/300'),
-  createData('Conferencia Internacional de Tecnología y Innovación', 'Nueva Córdoba, Córdoba', '2023-05-24', '150/300' ),
-  createData('Eclair', 'Palermo, Buenos Aires', '2023-05-24', '150/300'),
-  createData('Frozen yoghurt', 'Palermo, Buenos Aires', '2023-05-24', '150/300'),
-  createData('Gingerbread', 'Palermo, Buenos Aires', '2023-05-24', '150/300'),
-  createData('Honeycomb', 'Palermo, Buenos Aires', '2023-05-24', '150/300'),
-  createData('Ice cream sandwich', 'Palermo, Buenos Aires', '2023-05-24', '150/300'),
-  createData('Jelly Bean', 'Palermo, Buenos Aires', '2023-05-24', '150/300'),
-  createData('KitKat', 'Palermo, Buenos Aires', '2023-05-24', '150/300'),
-  createData('Lollipop', 'Palermo, Buenos Aires', '2023-05-24', '150/300'),
-  createData('Marshmallow', 'Palermo, Buenos Aires', '2023-05-24', '150/300'),
-  createData('Nougat', 'Palermo, Buenos Aires', '2023-05-24', '150/300'),
-  createData('Oreo', 'Palermo, Buenos Aires', '2023-05-24', '150/300'),
-]
+  createData(
+    "Festival de Música en Vivo",
+    "Palermo, Buenos Aires",
+    "2023-05-24",
+    "150/300"
+  ),
+  createData(
+    "Conferencia Internacional de Tecnología y Innovación, es un nombre muy largo y sigue abajo",
+    "Nueva Córdoba, Córdoba",
+    "2023-05-24",
+    "150/300"
+  ),
+  createData("Eclair", "Palermo, Buenos Aires", "2023-05-24", "150/300"),
+  createData(
+    "Frozen yoghurt",
+    "Palermo, Buenos Aires",
+    "2023-05-24",
+    "150/300"
+  ),
+  createData("Gingerbread", "Palermo, Buenos Aires", "2023-05-24", "150/300"),
+  createData("Honeycomb", "Palermo, Buenos Aires", "2023-05-24", "150/300"),
+  createData(
+    "Ice cream sandwich",
+    "Palermo, Buenos Aires",
+    "2023-05-24",
+    "150/300"
+  ),
+  createData("Jelly Bean", "Palermo, Buenos Aires", "2023-05-24", "150/300"),
+  createData("KitKat", "Palermo, Buenos Aires", "2023-05-24", "150/300"),
+  createData("Lollipop", "Palermo, Buenos Aires", "2023-05-24", "150/300"),
+  createData("Marshmallow", "Palermo, Buenos Aires", "2023-05-24", "150/300"),
+  createData("Nougat", "Palermo, Buenos Aires", "2023-05-24", "150/300"),
+  createData("Oreo", "Palermo, Buenos Aires", "2023-05-24", "150/300"),
+];
 
 const rowsPerPage = 10;
 
@@ -111,14 +139,30 @@ export const EventsTable = () => {
   };
 
   return (
-    <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 500 }} aria-label="custom pagination table">
+    <TableContainer
+      component={Paper}
+      sx={{
+        borderRadius: 4,
+      }}
+    >
+      <Table
+        sx={{
+          minWidth: 500,
+        }}
+        aria-label="custom pagination table"
+      >
         <TableHead>
           <TableRow>
-            <TableCell>Evento</TableCell>
-            <TableCell align="center">Ubicación</TableCell>
-            <TableCell align="center">Fecha</TableCell>
-            <TableCell align="center">Capacidad</TableCell>
+            <TableCell style={{ width: "25%" }}>Nombre</TableCell>
+            <TableCell style={{ width: "25%" }} align="center">
+              Ubicación
+            </TableCell>
+            <TableCell style={{ width: "25%" }} align="center">
+              Fecha
+            </TableCell>
+            <TableCell style={{ width: "25%" }} align="center">
+              Vacantes
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -126,19 +170,11 @@ export const EventsTable = () => {
             ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
             : rows
           ).map((row) => (
-            <TableRow key={row.name}>
-              <TableCell component="th" scope="row">
-                {row.name}
-              </TableCell>
-              <TableCell style={{ width: 160 }} align="center">
-                {row.location}
-              </TableCell>
-              <TableCell style={{ width: 160 }} align="center">
-                {row.date}
-              </TableCell>
-              <TableCell style={{ width: 160 }} align="center">
-                {row.capacity}
-              </TableCell>
+            <TableRow key={row.name} sx={{ backgroundColor: "#f3f1fc" }}>
+              <TableCell sx={{ fontWeight: "bold" }}>{row.name}</TableCell>
+              <TableCell align="center">{row.location}</TableCell>
+              <TableCell align="center">{row.date}</TableCell>
+              <TableCell align="center">{row.capacity}</TableCell>
             </TableRow>
           ))}
 
@@ -148,19 +184,42 @@ export const EventsTable = () => {
             </TableRow>
           )}
         </TableBody>
-        <TableFooter>
+        <TableFooter
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+          }}
+        >
           <TableRow>
             <TablePagination
-              colSpan={3}
               count={rows.length}
-              rowsPerPage={10}
-              page={page}
               onPageChange={handleChangePage}
-              ActionsComponent={TablePaginationActions}
+              page={page}
+              rowsPerPage={rowsPerPage}
+              rowsPerPageOptions={[]}
+              component="div"
+              labelDisplayedRows={({ from, to, count }) => page + 1}
+              labelRowsPerPage={null}
+              nextIconButtonProps={{
+                "aria-label": "Next Page",
+                style: {
+                  border: "2px solid",
+                  borderRadius: "20%",
+                  padding: "1px",
+                },
+              }}
+              backIconButtonProps={{
+                "aria-label": "Previous Page",
+                style: {
+                  border: "2px solid",
+                  borderRadius: "20%",
+                  padding: "1px",
+                },
+              }}
             />
           </TableRow>
         </TableFooter>
       </Table>
     </TableContainer>
   );
-}
+};
