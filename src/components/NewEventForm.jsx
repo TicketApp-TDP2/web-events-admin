@@ -1,6 +1,6 @@
 
-import { Stack, TextField, FormControl, Select,MenuItem, InputLabel, Grid, Typography, ImageList, ImageListItem, IconButton, Modal, Button, Box, Divider, CircularProgress } from "@mui/material";
-import { useState, useContext } from "react";
+import { Stack, TextField, FormControl, Select,MenuItem, InputLabel, Grid, Typography, ImageList, ImageListItem, IconButton, Button, Box, Divider, CircularProgress, Modal } from "@mui/material";
+import React, { useState, useContext, useEffect } from "react";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -29,6 +29,7 @@ import { toHTML } from 'react-mui-draft-wysiwyg';
 import {v4} from 'uuid';
 import { createEvent } from "../services/eventService";
 import { UserContext } from "../providers/UserProvider";
+import { letterSpacing } from "@mui/system";
 
 const modalStyle = {
     position: 'absolute',
@@ -47,10 +48,13 @@ const defaultValues = {
     name: '',
     date: today,
     type: '',
-    location: '',
+    location: {
+        description: '',
+        lat: '',
+        lng: '',
+    },
     start_time: todayStartOfTheDay,
     end_time: todayStartOfTheDay,
-    //price: '',
     vacants: '',
     description: '',
     images_urls: [{
@@ -61,10 +65,10 @@ const defaultValues = {
     faqs: [],
 };
 const agendaDefaultValues = {
-    start_time: todayStartOfTheDay,
-    end_time: todayStartOfTheDay,
-    responsible: '',
-    name: '',
+    time_init: todayStartOfTheDay,
+    time_end: todayStartOfTheDay,
+    owner: '',
+    title: '',
     description: '',
 }
 const faqDefaultValues = {
@@ -106,6 +110,18 @@ export const NewEventForm = () => {
     const [openFAQ, setOpenFAQ] = useState(false);
     const [editorState, setEditorState] = useState(MUIEditorState.createEmpty());
     const [html, setHtml] = useState('');
+    const [openSuccess, setOpenSuccess] = useState(false);
+    const [openError, setOpenError] = useState(false);
+    const [errorMsg, setErrorMsg] = useState('');
+
+    useEffect(() => {
+     console.log("useEffect");
+      if (errorMsg) {
+        console.log("hay error");
+        setOpenError(true);
+      }
+    }, [errorMsg])
+    
 
     const onEditorChange = (newState) => {
         setEditorState(newState);
@@ -142,6 +158,7 @@ export const NewEventForm = () => {
             addImage(urlImage, false);
         } catch(e) {
             console.log(e);
+            setErrorMsg(e);
             /*Swal.fire({
                 title: 'Error!',
                 text: 'Ocurrió un error. Intente nuevamente',
@@ -169,6 +186,14 @@ export const NewEventForm = () => {
                 </Box>
             </Modal>
         );
+    }
+
+    function SuccessModal() {
+        
+    }
+
+    function ErrorModal() {
+
     }
 
     const handleOpenFAQ = () => {
@@ -199,10 +224,10 @@ export const NewEventForm = () => {
 
     const handleAddAgenda = () => {
         const newElement = {
-            start_time: agendaData.start_time,
-            end_time: agendaData.end_time,
-            responsible: agendaData.responsible,
-            name: agendaData.name,
+            time_init: agendaData.time_init,
+            time_end: agendaData.time_end,
+            owner: agendaData.owner,
+            title: agendaData.title,
             description: agendaData.description,
         };
         const newAgenda = eventData.agenda.slice();
@@ -212,36 +237,54 @@ export const NewEventForm = () => {
     }
 
     const handleCreateEvent = async () => {
-        const newImages = eventData.images_urls;
-        const previewImage = "";
-        eventData.images_urls.shift();
-        if (eventData.images_urls.length > 0){
-            newImages = eventData.images_urls.map((image) => image.url);
-            previewImage = newImages[0].url;
+        let newImages = eventData.images_urls.slice();
+        newImages.shift();
+        let previewImage = "";
+        if (newImages.length > 0){
+            newImages = newImages.map((image) => image.url);
+            previewImage = newImages[0];
         }
-        console.log("vacants", parseInt(eventData.vacants));
+        const newAgenda = []
+        eventData.agenda.forEach(agenda => {
+            let newElement = {
+                time_init: agenda.time_init.format('HH:mm:ss'),
+                time_end: agenda.time_end.format('HH:mm:ss'),
+                owner: agenda.owner,
+                title: agenda.title,
+                description: agenda.description,
+            }
+            newAgenda.push(newElement);
+        });
+        console.log("location",eventData.location);
         const newValues = {
             name: eventData.name,
-            date: eventData.date.format('YYYY-MM-DD'), //pasar a string y fecha sin hora
+            date: eventData.date.format('YYYY-MM-DD'), 
             type: eventData.type,
             location: eventData.location,
-            start_time: eventData.start_time.format('HH:mm:ss'), //pasar a string y formato hora min y AM/PM
-            end_time: eventData.end_time.format('HH:mm:ss'), //pasar a string y formato hora min y AM/PM
+            start_time: eventData.start_time.format('HH:mm:ss'),
+            end_time: eventData.end_time.format('HH:mm:ss'),
             vacants: parseInt(eventData.vacants),
             description: html,
-            images: newImages, //sacar la primera url que es la default
+            images: newImages,
             preview_image: previewImage,
-            organizer: user.id, //obtener el id del usuario del local storage
-            agenda: eventData.agenda, //para los campos de horarios: pasar a string y formato hora min y AM/PM
+            organizer: user.id,
+            agenda: newAgenda,
             FAQ: eventData.faqs,
         };
         console.log("newValues", newValues);
-        await createEvent(newValues).then((result) => {console.log("response", result)});
+        await createEvent(newValues).then((result) => {
+            setOpenSuccess(true);
+            console.log("response", result)
+        }).catch((error) => {
+            setErrorMsg(`${error.response.data.detail[0].loc[1]}: ${error.response.data.detail[0].msg}`);
+            console.log("creation error", error)
+        });
     }
 
     return <>
     <Stack spacing={2} sx={{ pl: 3, pr: 3 }}>
         <ImageModal />
+        <SuccessModal />
         <Stack sx={{ pt: 2}}>
             <TextField
                 label="Nombre del evento"
@@ -336,8 +379,8 @@ export const NewEventForm = () => {
             <TextField
                 name="location"
                 label="Ubicación"
-                value={eventData.location}
-                onChange={(event) => setEventData({...eventData, location: event.target.value})}
+                value={eventData.location.description}
+                onChange={(event) => setEventData({...eventData, location: { description: event.target.value,  lat: '1234', lng: '4321' }})}
             />
         </Stack>
         <Typography variant="h5" sx={{ marginRight: 2, marginLeft: 2 }}>Descripción</Typography>
@@ -420,8 +463,8 @@ export const NewEventForm = () => {
                         <Grid item xs>
                             <DesktopTimePicker
                                 label="Horario inicio"
-                                value={agendaData.start_time}
-                                onChange={(newValue) => setAgendaData({...agendaData, start_time: newValue})}
+                                value={agendaData.time_init}
+                                onChange={(newValue) => setAgendaData({...agendaData, time_init: newValue})}
                             />
                         </Grid>
                         <Grid item xs={1}>
@@ -432,8 +475,8 @@ export const NewEventForm = () => {
                         <Grid item xs>
                             <DesktopTimePicker
                                 label="Horario fin"
-                                value={agendaData.end_time}
-                                onChange={(newValue) => setAgendaData({...agendaData, end_time: newValue})}
+                                value={agendaData.time_end}
+                                onChange={(newValue) => setAgendaData({...agendaData, time_end: newValue})}
                             />
                         </Grid>
                     </LocalizationProvider>
@@ -448,8 +491,8 @@ export const NewEventForm = () => {
                         <TextField
                             label="Responsable/Orador"
                             sx={{width: "100%"}}
-                            value={agendaData.responsible}
-                            onChange={(event) => setAgendaData({...agendaData, responsible: event.target.value})}
+                            value={agendaData.owner}
+                            onChange={(event) => setAgendaData({...agendaData, owner: event.target.value})}
                         />
                     </Grid>
                 </Grid>
@@ -463,8 +506,8 @@ export const NewEventForm = () => {
                         <TextField
                             label="Titulo"
                             sx={{width: "100%"}}
-                            value={agendaData.name}
-                            onChange={(event) => setAgendaData({...agendaData, name: event.target.value})}
+                            value={agendaData.title}
+                            onChange={(event) => setAgendaData({...agendaData, title: event.target.value})}
                         />
                     </Grid>
                 </Grid>
@@ -501,13 +544,13 @@ export const NewEventForm = () => {
             >
                 <TimelineItem>
                 <TimelineOppositeContent color="textSecondary">
-                    {event.start_time.format('HH:mm A')} - {event.end_time.format('HH:mm A')}
+                    {event.time_init.format('HH:mm A')} - {event.time_end.format('HH:mm A')}
                 </TimelineOppositeContent>
                 <TimelineSeparator>
                     <TimelineDot />
                     <TimelineConnector />
                 </TimelineSeparator>
-                <TimelineContent>{event.name}</TimelineContent>
+                <TimelineContent>{event.title}</TimelineContent>
                 </TimelineItem>
             </Timeline>
         ))}
@@ -561,6 +604,34 @@ export const NewEventForm = () => {
                 Crear Evento
             </Button>
         </Grid>
+        <Modal
+            open={openError}
+            onClose={() => {
+                setOpenError(false);
+                setErrorMsg('');
+            }}
+            sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+        >
+            <Box sx={modalStyle}>
+                <Typography variant="body1">
+                    Error
+                </Typography>
+                <Typography variant="body1">
+                    {errorMsg}
+                </Typography>
+            </Box>
+        </Modal>
+        <Modal
+            open={openSuccess}
+            onClose={() => setOpenSuccess(false)}
+            sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+        >
+        <Box sx={modalStyle}>
+            <Typography variant="body1">
+                Exito!
+            </Typography>
+        </Box>
+      </Modal>
     </Stack>
     </>
 }
