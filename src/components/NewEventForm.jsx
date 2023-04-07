@@ -29,7 +29,6 @@ import { toHTML } from 'react-mui-draft-wysiwyg';
 import {v4} from 'uuid';
 import { createEvent } from "../services/eventService";
 import { UserContext } from "../providers/UserProvider";
-import { letterSpacing } from "@mui/system";
 
 const modalStyle = {
     position: 'absolute',
@@ -159,13 +158,6 @@ export const NewEventForm = () => {
         } catch(e) {
             console.log(e);
             setErrorMsg(e);
-            /*Swal.fire({
-                title: 'Error!',
-                text: 'Ocurrió un error. Intente nuevamente',
-                icon: 'error',
-                confirmButtonColor: 'red',
-                timer: 100,
-            })*/
         }
         setLoadingImage(false);
     }
@@ -186,14 +178,6 @@ export const NewEventForm = () => {
                 </Box>
             </Modal>
         );
-    }
-
-    function SuccessModal() {
-        
-    }
-
-    function ErrorModal() {
-
     }
 
     const handleOpenFAQ = () => {
@@ -284,7 +268,6 @@ export const NewEventForm = () => {
     return <>
     <Stack spacing={2} sx={{ pl: 3, pr: 3 }}>
         <ImageModal />
-        <SuccessModal />
         <Stack sx={{ pt: 2}}>
             <TextField
                 label="Nombre del evento"
@@ -546,10 +529,10 @@ export const NewEventForm = () => {
                 <TimelineOppositeContent color="textSecondary">
                     {event.time_init.format('HH:mm A')} - {event.time_end.format('HH:mm A')}
                 </TimelineOppositeContent>
-                <TimelineSeparator>
-                    <TimelineDot />
-                    <TimelineConnector />
-                </TimelineSeparator>
+                    <TimelineSeparator>
+                        <TimelineDot />
+                        <TimelineConnector />
+                    </TimelineSeparator>
                 <TimelineContent>{event.title}</TimelineContent>
                 </TimelineItem>
             </Timeline>
