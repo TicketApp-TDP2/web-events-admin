@@ -180,7 +180,7 @@ export const EventsTable = () => {
 
           {emptyRows > 0 && (
             <TableRow style={{ height: 53 * emptyRows }}>
-              <TableCell colSpan={6} />
+              <TableCell colSpan={6} sx={{ backgroundColor: "#f3f1fc" }} />
             </TableRow>
           )}
         </TableBody>
