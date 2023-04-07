@@ -363,7 +363,7 @@ export const NewEventForm = () => {
                 name="location"
                 label="Ubicación"
                 value={eventData.location.description}
-                onChange={(event) => setEventData({...eventData, location: { description: event.target.value,  lat: '1234', lng: '4321' }})}
+                onChange={(event) => setEventData({...eventData, location: { description: event.target.value,  lat: '10', lng: '20' }})}
             />
         </Stack>
         <Typography variant="h5" sx={{ marginRight: 2, marginLeft: 2 }}>Descripción</Typography>

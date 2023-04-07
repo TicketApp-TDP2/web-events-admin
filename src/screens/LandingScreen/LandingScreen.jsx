@@ -52,7 +52,7 @@ export const LandingScreen = () => {
 
     useEffect(() => {
         fetchData();
-    }, [userId])
+    }, [])
 
     return <>
         <Grid
