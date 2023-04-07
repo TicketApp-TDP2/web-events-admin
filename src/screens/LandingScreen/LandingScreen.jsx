@@ -19,7 +19,7 @@ export const LandingScreen = () => {
 
     const handleLogIn = async () => {
         signInWithPopup(firebaseContext.auth, firebaseContext.provider)
-        .then((result) => {
+        .then(async (result) => {
             setUserId(result.user.uid);
             const additionalUserInfo = getAdditionalUserInfo(result)
             if (additionalUserInfo.isNewUser){
@@ -36,23 +36,14 @@ export const LandingScreen = () => {
                     console.log("OK backend", res);
                 }).catch((err) => console.log("ERROR backend: ", err));
             }
+            await fetchUser(result.user.uid);
+            navigate('events');
         }).catch((error) => {
             //Tirar un alert con el error
             console.log("error", error)
         });
         console.log("fetch user", userId);
     }
-
-    async function fetchData() {
-        if (userId){
-            await fetchUser(userId);
-            navigate('events');
-        }
-    }
-
-    useEffect(() => {
-        fetchData();
-    }, [])
 
     return <>
         <Grid

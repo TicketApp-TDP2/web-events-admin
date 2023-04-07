@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@ckeditor/ckeditor5-build-classic": "^37.0.1",
+    "@ckeditor/ckeditor5-react": "^6.0.0",
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
     "@material-ui/core": "^4.12.4",
@@ -22,6 +24,7 @@
     "firebase": "^9.19.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-draft-wysiwyg": "^1.15.0",
     "react-mui-draft-wysiwyg": "^1.0.3",
     "react-router-dom": "^6.9.0",
     "react-scripts": "5.0.1",

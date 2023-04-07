@@ -29,6 +29,8 @@ import { toHTML } from 'react-mui-draft-wysiwyg';
 import {v4} from 'uuid';
 import { createEvent } from "../services/eventService";
 import { UserContext } from "../providers/UserProvider";
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
 const modalStyle = {
     position: 'absolute',
@@ -107,7 +109,6 @@ export const NewEventForm = () => {
     const [loadingImage, setLoadingImage] = useState(false);
     const [openModal, setOpenModal] = useState(false);
     const [openFAQ, setOpenFAQ] = useState(false);
-    const [editorState, setEditorState] = useState(MUIEditorState.createEmpty());
     const [html, setHtml] = useState('');
     const [openSuccess, setOpenSuccess] = useState(false);
     const [openError, setOpenError] = useState(false);
@@ -119,14 +120,8 @@ export const NewEventForm = () => {
         console.log("hay error");
         setOpenError(true);
       }
-    }, [errorMsg])
+    }, [errorMsg]);
     
-
-    const onEditorChange = (newState) => {
-        setEditorState(newState);
-        setHtml(toHTML(newState.getCurrentContent()));
-    }
-
     const handleTypeChange = (event) => {
         setEventData({...eventData, type: event.target.value});
     };
@@ -368,7 +363,25 @@ export const NewEventForm = () => {
         </Stack>
         <Typography variant="h5" sx={{ marginRight: 2, marginLeft: 2 }}>Descripción</Typography>
         <Stack spacing={2} mt={5}>
-            <MUIEditor editorState={editorState} onChange={onEditorChange} />
+            <CKEditor
+                editor={ ClassicEditor }
+                data=""
+                onReady={ editor => {
+                    // You can store the "editor" and use when it is needed.
+                    //console.log( 'Editor is ready to use!', editor );
+                } }
+                onChange={ ( event, editor ) => {
+                    const data = editor.getData();
+                    setHtml(data);
+                    console.log( { event, editor, data } );
+                } }
+                onBlur={ ( event, editor ) => {
+                    //console.log( 'Blur.', editor );
+                } }
+                onFocus={ ( event, editor ) => {
+                    //console.log( 'Focus.', editor );
+                } }
+            />
         </Stack>
         <Typography variant="h5" sx={{ marginRight: 2, marginLeft: 2 }}>Galeria de Fotos</Typography>
         <Stack spacing={2} mt={5}>
@@ -531,7 +544,7 @@ export const NewEventForm = () => {
                 </TimelineOppositeContent>
                     <TimelineSeparator>
                         <TimelineDot />
-                        <TimelineConnector />
+                        {(eventData.agenda.length-1) !== idx && (<TimelineConnector />)}
                     </TimelineSeparator>
                 <TimelineContent>{event.title}</TimelineContent>
                 </TimelineItem>
