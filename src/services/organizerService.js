@@ -40,3 +40,15 @@ export async function createOrganizer({
 
   return response.data;
 }
+
+export async function updateOrganizer({
+  id,
+  user,
+}) {
+  const body = {
+    user
+  }
+  const response = await axios.post(`/organizers/${id}`, body,);
+
+  return response.data;
+}
