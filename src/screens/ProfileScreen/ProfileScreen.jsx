@@ -1,5 +1,5 @@
 import SideBar from '../../components/SideBar';
-import { Typography, Box, Divider, Grid, Button, Stack, Avatar, Badge, TextField, Paper, IconButton } from '@mui/material';
+import { Typography, Box, Divider, Grid, Button, Stack, Avatar, Badge, TextField, Paper, IconButton, Modal, CircularProgress } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import { useState, useEffect, useContext } from "react";
 import { updateOrganizer } from '../../services/organizerService';
@@ -11,6 +11,19 @@ import {v4} from 'uuid';
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import ImageIcon from '@mui/icons-material/Image';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+
+const modalStyle = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  boxShadow: 24,
+  p: 4,
+};
 
 const defaultUser = {
   id: "",
@@ -21,17 +34,23 @@ const defaultUser = {
   profession: "",
 }
 
-
-
 export const ProfileScreen = () => {
+  const { user } = useContext(UserContext);
+  const { fetchUser } = useContext(UserContext);
+  const firebaseContext = useContext(FirebaseContext);
+
   const [openEditProfile, setOpenEditProfile] = useState(false);
   const [userData, setUserData] = useState(defaultUser);
-  const { user } = useContext(UserContext);
-
-  const firebaseContext = useContext(FirebaseContext);
-  const { fetchUser } = useContext(UserContext);
- 
   const [loadingImage, setLoadingImage] = useState(false);
+  const [openSuccess, setOpenSuccess] = useState(false);
+  const [openError, setOpenError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  useEffect(() => {
+     if (errorMsg) {
+       setOpenError(true);
+     }
+   }, [errorMsg]);
 
   function addImage(url) {
     setUserData({...userData, profile_picture: url});
@@ -56,9 +75,23 @@ export const ProfileScreen = () => {
     setLoadingImage(false);
   }
 
-
-
-
+  function ImageModal() {
+    return (
+        <Modal
+            open={loadingImage}
+            onClose={() => setLoadingImage(false)}
+        >
+            <Box sx={modalStyle}>
+                <Typography variant="body1">
+                    Aguarde un momento la imagen se está cargando...
+                </Typography>
+                <Grid sx={{display: 'flex'}} justifyContent="center" alignItems="center">
+                    <CircularProgress color="inherit"/> 
+                </Grid>
+            </Box>
+        </Modal>
+    );
+  }
 
   const handleSubmit = async () => {
     await updateOrganizer({
@@ -70,16 +103,15 @@ export const ProfileScreen = () => {
       id: userData.id,
     }).then(async (response) => {
       await fetchUser(response.id);
-      console.log("TODO OK!" + JSON.stringify(response));
+      setOpenSuccess(true);
     }).catch((error) => {
+      setErrorMsg(error);
       console.log(error)
     })
     setOpenEditProfile(false);
   }
 
   useEffect(() => {
-
-
     if (user) {
       setUserData({
         id: user.id,
@@ -92,10 +124,10 @@ export const ProfileScreen = () => {
     }
   }, [user])
   
-  
   return <>
     <Box sx={{ display: 'flex' }}>
       <SideBar/>
+      <ImageModal/>
       {!openEditProfile && (
         <Box
           component="main"
@@ -180,10 +212,6 @@ export const ProfileScreen = () => {
                 </Badge>
                 
             </Grid>
-
-
-
-
             <Stack sx={{ pt: 2}}>
                 <TextField
                     label="Nombre"
@@ -228,6 +256,43 @@ export const ProfileScreen = () => {
         </Grid>
       </Box>
       )}
+      <Modal
+        open={openError}
+        onClose={() => {
+            setOpenError(false);
+            setErrorMsg('');
+        }}
+        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', borderColor: "#ff5252" }}
+      >
+        <Box sx={modalStyle}>
+          <Grid container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <ErrorOutlineIcon sx={{ color: "#ff5252", marginRight: 1 }}/>
+            <Typography variant="h5">
+              ¡Ocurrió un error!
+            </Typography>
+          </Grid>
+          <Typography variant="body1">
+            {errorMsg}
+          </Typography>
+        </Box>
+      </Modal>
+      <Modal
+          open={openSuccess}
+          onClose={() => setOpenSuccess(false)}
+          sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+      >
+        <Box sx={modalStyle}>
+          <Grid container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <CheckCircleOutlineIcon sx={{ color: "#4caf50", marginRight: 1 }}/>
+            <Typography variant="h5">
+              ¡Éxito!
+            </Typography>
+          </Grid>
+          <Typography variant="body1" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            El perfil se ha actualizado correctamenta
+          </Typography>
+        </Box>
+      </Modal>
     </Box>
   </>
 }
