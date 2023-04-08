@@ -122,6 +122,7 @@ export const NewEventForm = () => {
         // inputAutocompleteValue: "country",
         options: {
             componentRestrictions: { country: "ar" },
+            types: ["address"]
         },
         defaultValue: eventData.location.description
     });
@@ -419,11 +420,11 @@ export const NewEventForm = () => {
                                     Agregar nueva imagen
                                 </Typography>
                                 <input
-                                type="file"
-                                name=""
-                                id="contained-button-file"
-                                onChange={(event) => handleSubmitImage(event)}
-                                hidden
+                                    type="file"
+                                    name=""
+                                    id="contained-button-file"
+                                    onChange={(event) => handleSubmitImage(event)}
+                                    hidden
                                 />
                                 <label htmlFor="contained-button-file">
                                     <IconButton style={{ position: 'absolute', top: "2%", left: "75%", backgroundColor: "white" }} 
