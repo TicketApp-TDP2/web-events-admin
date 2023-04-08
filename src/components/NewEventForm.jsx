@@ -288,15 +288,16 @@ export const NewEventForm = () => {
         <LocalizationProvider dateAdapter={AdapterDayjs}>
             <Grid container rowSpacing={1}>
                 <Grid item xs>
-                    <DatePicker 
+                    <DatePicker
                     label="Elegir una fecha"
                     value={eventData.date}
                     onChange={(newValue) => setEventData({...eventData, date: newValue})}
-                    slotProps={{
+                    /*slotProps={{
                         textField: {
                         helperText: 'MM / DD / AAAA',
                         },
-                    }}
+                    }}*/
+                    format="DD/MM/YYYY"
                     disablePast
                     sx={{width: "95%", pr:2}}
                     />
