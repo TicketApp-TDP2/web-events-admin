@@ -1,4 +1,3 @@
-
 import { Stack, TextField, FormControl, Select,MenuItem, InputLabel, Grid, Typography, ImageList, ImageListItem, IconButton, Button, Box, Divider, CircularProgress, Modal } from "@mui/material";
 import React, { useState, useContext, useEffect } from "react";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -29,6 +28,9 @@ import { toHTML } from 'react-mui-draft-wysiwyg';
 import {v4} from 'uuid';
 import { createEvent } from "../services/eventService";
 import { UserContext } from "../providers/UserProvider";
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import AutoComplete, {usePlacesWidget} from "react-google-autocomplete";
 
 const modalStyle = {
     position: 'absolute',
@@ -107,11 +109,24 @@ export const NewEventForm = () => {
     const [loadingImage, setLoadingImage] = useState(false);
     const [openModal, setOpenModal] = useState(false);
     const [openFAQ, setOpenFAQ] = useState(false);
-    const [editorState, setEditorState] = useState(MUIEditorState.createEmpty());
     const [html, setHtml] = useState('');
     const [openSuccess, setOpenSuccess] = useState(false);
     const [openError, setOpenError] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
+
+    const { ref: materialRef } = usePlacesWidget({
+        apiKey: process.env.REACT_APP_GEO_APIKEY,
+        onPlaceSelected: (place) => {
+            setEventData({...eventData, location: { description: place.formatted_address, lat: place.geometry.location.lat(), lng: place.geometry.location.lng() }})
+        },
+        // inputAutocompleteValue: "country",
+        options: {
+            componentRestrictions: { country: "ar" },
+        },
+        defaultValue: eventData.location.description
+    });
+
+    // style={{ height: "50px", fontStyle: "Urbanist" }}
 
     useEffect(() => {
      console.log("useEffect");
@@ -119,14 +134,8 @@ export const NewEventForm = () => {
         console.log("hay error");
         setOpenError(true);
       }
-    }, [errorMsg])
+    }, [errorMsg]);
     
-
-    const onEditorChange = (newState) => {
-        setEditorState(newState);
-        setHtml(toHTML(newState.getCurrentContent()));
-    }
-
     const handleTypeChange = (event) => {
         setEventData({...eventData, type: event.target.value});
     };
@@ -153,6 +162,7 @@ export const NewEventForm = () => {
         setLoadingImage(true);
         event.preventDefault();
         try {
+            console.log(event.target.files)
             const urlImage = await uploadFile(event.target.files[0]);
             addImage(urlImage, false);
         } catch(e) {
@@ -360,15 +370,39 @@ export const NewEventForm = () => {
         </Grid>
         <Stack>
             <TextField
+                inputRef={materialRef}
                 name="location"
                 label="Ubicación"
-                value={eventData.location.description}
-                onChange={(event) => setEventData({...eventData, location: { description: event.target.value,  lat: '10', lng: '20' }})}
             />
         </Stack>
         <Typography variant="h5" sx={{ marginRight: 2, marginLeft: 2 }}>Descripción</Typography>
         <Stack spacing={2} mt={5}>
-            <MUIEditor editorState={editorState} onChange={onEditorChange} />
+            <CKEditor
+                editor={ ClassicEditor }
+                data=""
+                onReady={ editor => {
+                    // You can store the "editor" and use when it is needed.
+                    //console.log( 'Editor is ready to use!', editor );
+                    editor.editing.view.change((writer) => {
+                        writer.setStyle(
+                            "height",
+                            "100px",
+                            editor.editing.view.document.getRoot()
+                        );
+                    });
+                } }
+                onChange={ ( event, editor ) => {
+                    const data = editor.getData();
+                    setHtml(data);
+                    console.log( { event, editor, data } );
+                } }
+                onBlur={ ( event, editor ) => {
+                    //console.log( 'Blur.', editor );
+                } }
+                onFocus={ ( event, editor ) => {
+                    //console.log( 'Focus.', editor );
+                } }
+            />
         </Stack>
         <Typography variant="h5" sx={{ marginRight: 2, marginLeft: 2 }}>Galeria de Fotos</Typography>
         <Stack spacing={2} mt={5}>
@@ -531,7 +565,7 @@ export const NewEventForm = () => {
                 </TimelineOppositeContent>
                     <TimelineSeparator>
                         <TimelineDot />
-                        <TimelineConnector />
+                        {(eventData.agenda.length-1) !== idx && (<TimelineConnector />)}
                     </TimelineSeparator>
                 <TimelineContent>{event.title}</TimelineContent>
                 </TimelineItem>

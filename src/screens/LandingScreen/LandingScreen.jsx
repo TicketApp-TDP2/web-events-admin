@@ -21,8 +21,8 @@ export const LandingScreen = () => {
             console.log("additionalUserInfo", additionalUserInfo);
             if (additionalUserInfo.isNewUser) {
                 const newUser = {
-                    firstName: additionalUserInfo.profile.given_name,
-                    lastName: additionalUserInfo.profile.family_name,
+                    first_name: additionalUserInfo.profile.given_name,
+                    last_name: additionalUserInfo.profile.family_name,
                     email: additionalUserInfo.profile.email,
                     id: result.user.uid
                 }
