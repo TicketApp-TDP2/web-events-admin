@@ -5,6 +5,8 @@ import { useState, useEffect, useContext } from "react";
 import { updateOrganizer } from '../../services/organizerService';
 import { UserContext } from "../../providers/UserProvider";
 
+
+
 const defaultUser = {
   first_name: "",
   last_name: "",
@@ -13,12 +15,55 @@ const defaultUser = {
   profession: "",
 }
 
+//-----------------------------
+function handleClick() {
+  console.log('Badge clicked!');
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = handleUpload;
+  input.click();
+}
+
+function handleUpload(event) {
+  const file = event.target.files[0];
+  if (!file) {
+    return;
+  }
+
+  console.log(`Uploading file ${file.name}...`);
+  // Send the file to the server using axios
+  /*
+  const formData = new FormData();
+  formData.append('file', file);
+
+  axios.post('/upload-file', formData)
+    .then(response => {
+      console.log('File uploaded successfully!');
+    })
+    .catch(error => {
+      console.error('Error uploading file:', error);
+    });
+    */
+  // firebase.storage.save().then((res) => {
+    // await updateOrganizer(res.urlFirebase)
+   //})
+}
+//-----------------------------
+
 
 export const ProfileScreen = () => {
   const [openEditProfile, setOpenEditProfile] = useState(false);
   const [userData, setUserData] = useState(defaultUser);
-  const { user } = useContext(UserContext);
-  const { userId } = user.id;
+  //const { user } = useContext(UserContext);
+  const user = {
+    first_name: "Lio",
+    last_name: "Guglielmone",
+    about_me:  "Im just a guy",
+    profile_picture: "https://pbs.twimg.com/profile_images/1485050791488483328/UNJ05AV8_400x400.jpg",
+    profession: "Maestro",
+  } 
+  const { userId } = "6waNhwioOiP1ZEXX8jyotCNT3Ao2";//user.id;
 
 
   const handleSubmit = async () => {
@@ -68,7 +113,7 @@ export const ProfileScreen = () => {
               paddingTop={10}
               >
                   <Grid item>
-                      <Avatar alt={userData.first_name} src={userData.profile_picture} sx={{ width: 300, height: 300 }}/>
+                      <Avatar alt={userData.first_name} src={userData.profile_picture} sx={{ width: 350, height: 350 }} />
                   </Grid>
                   <Grid item sx={{ paddingTop: 2}}>
                       <Paper elevation={10} sx={{ textAlign: 'center', backgroundColor: "#8978C7", lineHeight: '30px', padding: 2, width: "90%"}}>
@@ -103,9 +148,10 @@ export const ProfileScreen = () => {
                     overlap="circular"
                     badgeContent={<EditIcon/>}
                     color="primary"
-                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                    anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                    onClick={handleClick}
                 >
-                    <Avatar alt={userData.first_name} src={userData.profile_picture} sx={{ width: 250, height: 250 }}/>
+                    <Avatar alt={userData.first_name} src={userData.profile_picture} sx={{ width: 250 , height: 250 }}/>
                 </Badge>
             </Grid>
             <Stack sx={{ pt: 2}}>
