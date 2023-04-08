@@ -31,6 +31,8 @@ import { UserContext } from "../providers/UserProvider";
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import AutoComplete, {usePlacesWidget} from "react-google-autocomplete";
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 
 const modalStyle = {
     position: 'absolute',
@@ -631,12 +633,15 @@ export const NewEventForm = () => {
                 setOpenError(false);
                 setErrorMsg('');
             }}
-            sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+            sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', borderColor: "#ff5252" }}
         >
             <Box sx={modalStyle}>
-                <Typography variant="body1">
-                    Error
-                </Typography>
+                <Grid container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    <ErrorOutlineIcon sx={{ color: "#ff5252", marginRight: 1 }}/>
+                    <Typography variant="h5">
+                        ¡Ocurrió un error!
+                    </Typography>
+                </Grid>
                 <Typography variant="body1">
                     {errorMsg}
                 </Typography>
@@ -648,8 +653,14 @@ export const NewEventForm = () => {
             sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
         >
         <Box sx={modalStyle}>
+            <Grid container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <CheckCircleOutlineIcon sx={{ color: "#4caf50", marginRight: 1 }}/>
+                <Typography variant="h5">
+                    ¡Éxito!
+                </Typography>
+            </Grid>
             <Typography variant="body1">
-                Exito!
+                El evento se ha creado correctamente
             </Typography>
         </Box>
       </Modal>
