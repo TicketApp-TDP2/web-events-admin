@@ -292,11 +292,6 @@ export const NewEventForm = () => {
                     label="Elegir una fecha"
                     value={eventData.date}
                     onChange={(newValue) => setEventData({...eventData, date: newValue})}
-                    /*slotProps={{
-                        textField: {
-                        helperText: 'MM / DD / AAAA',
-                        },
-                    }}*/
                     format="DD/MM/YYYY"
                     disablePast
                     sx={{width: "95%", pr:2}}
@@ -594,9 +589,11 @@ export const NewEventForm = () => {
                     rows={4}
                     onChange={(event) => setFaqData({...faqData, answer: event.target.value})}
                 />
-                <Button variant="contained" size="large" onClick={() => handleAddFaq()}>
-                    Agregar
-                </Button>
+                <Box display="flex" justifyContent="flex-end">
+                    <Button variant="contained" size="large" onClick={() => handleAddFaq()}>
+                        Agregar
+                    </Button>
+                </Box>
             </>
         )}
         {eventData.faqs.map((faq, idx) => (
