@@ -23,8 +23,6 @@ import AddIcon from '@mui/icons-material/Add';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
-import MUIEditor, { MUIEditorState } from "react-mui-draft-wysiwyg";
-import { toHTML } from 'react-mui-draft-wysiwyg';
 import {v4} from 'uuid';
 import { createEvent } from "../services/eventService";
 import { UserContext } from "../providers/UserProvider";
