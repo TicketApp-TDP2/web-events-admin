@@ -307,6 +307,7 @@ export const NewEventForm = () => {
                         value={eventData.start_time}
                         onChange={(newValue) => setEventData({...eventData, start_time: newValue})}
                         sx={{width: "95%", pr:2}}
+                        ampm={false}
                     />
                 </Grid>
                 <Grid item xs>
@@ -315,6 +316,7 @@ export const NewEventForm = () => {
                         value={eventData.end_time}
                         onChange={(newValue) => setEventData({...eventData, end_time: newValue})}
                         sx={{width: "100%"}}
+                        ampm={false}
                     />
                 </Grid>
             </Grid>
@@ -482,6 +484,7 @@ export const NewEventForm = () => {
                                 label="Horario inicio"
                                 value={agendaData.time_init}
                                 onChange={(newValue) => setAgendaData({...agendaData, time_init: newValue})}
+                                ampm={false}
                             />
                         </Grid>
                         <Grid item xs={1}>
@@ -494,6 +497,7 @@ export const NewEventForm = () => {
                                 label="Horario fin"
                                 value={agendaData.time_end}
                                 onChange={(newValue) => setAgendaData({...agendaData, time_end: newValue})}
+                                ampm={false}
                             />
                         </Grid>
                     </LocalizationProvider>
@@ -561,7 +565,7 @@ export const NewEventForm = () => {
             >
                 <TimelineItem>
                 <TimelineOppositeContent color="textSecondary">
-                    {event.time_init.format('HH:mm A')} - {event.time_end.format('HH:mm A')}
+                    {event.time_init.format('HH:mm')} - {event.time_end.format('HH:mm')}
                 </TimelineOppositeContent>
                     <TimelineSeparator>
                         <TimelineDot />
