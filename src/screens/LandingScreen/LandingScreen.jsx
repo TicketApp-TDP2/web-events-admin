@@ -9,41 +9,50 @@ import { createOrganizer } from '../../services/organizerService';
 import { UserContext } from '../../providers/UserProvider';
 
 export const LandingScreen = () => {
-    
     const firebaseContext = useContext(FirebaseContext);
     const { fetchUser } = useContext(UserContext);
-
-    const [userId, setUserId] = useState('');
-
+    const [userId, setUserId] = useState(null);
     const navigate = useNavigate();
 
     const handleLogIn = async () => {
         signInWithPopup(firebaseContext.auth, firebaseContext.provider)
-        .then(async (result) => {
-            setUserId(result.user.uid);
+        .then((result) => {
             const additionalUserInfo = getAdditionalUserInfo(result)
-            if (additionalUserInfo.isNewUser){
+            console.log("additionalUserInfo", additionalUserInfo);
+            if (additionalUserInfo.isNewUser) {
                 const newUser = {
                     firstName: additionalUserInfo.profile.given_name,
                     lastName: additionalUserInfo.profile.family_name,
                     email: additionalUserInfo.profile.email,
-                    id: result.user.uid,
-                    profession: "Hola",
-                    about_me: "Chau",
-                    profile_picture: "okay",
+                    id: result.user.uid
                 }
+                console.log("creating new user in backend")
                 createOrganizer(newUser).then((res) => {
                     console.log("OK backend", res);
+                    setUserId(newUser.id);
+                    fetchUser(newUser.id).then((r) => console.log("keep logged in"))
                 }).catch((err) => console.log("ERROR backend: ", err));
+            } else {
+                setUserId(result.user.uid);
+                fetchUser(result.user.uid).then((r) => console.log("logged in"))
             }
-            await fetchUser(result.user.uid);
-            navigate('events');
         }).catch((error) => {
             //Tirar un alert con el error
             console.log("error", error)
         });
         console.log("fetch user", userId);
     }
+
+    async function fetchData() {
+        if (userId) {
+            await fetchUser(userId);
+            navigate('events');
+        }
+    }
+
+    useEffect(() => {
+        fetchData();
+    }, [userId])
 
     return <>
         <Grid

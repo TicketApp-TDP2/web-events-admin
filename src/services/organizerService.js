@@ -22,19 +22,13 @@ export async function createOrganizer({
   firstName,
   lastName,
   email,
-  id,
-  profession,
-  about_me,
-  profile_picture
+  id
 }) {
   const body = {
     email,
     first_name: firstName,
     last_name: lastName,
-    id: id,
-    profession: profession,
-    about_me: about_me,
-    profile_picture: profile_picture,
+    id: id
   }
   const response = await axios.post(`/organizers`, body,);
 
