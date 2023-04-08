@@ -410,6 +410,7 @@ export const NewEventForm = () => {
                         <img
                             src={`${item.url}?w=164&h=164&fit=crop&auto=format`}
                             srcSet={`${item.url}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
+                            alt=""
                             loading="lazy"
                         />
                         {item.default ? (
