@@ -122,6 +122,7 @@ export const NewEventForm = () => {
         // inputAutocompleteValue: "country",
         options: {
             componentRestrictions: { country: "ar" },
+            types: ["address"]
         },
         defaultValue: eventData.location.description
     });
@@ -411,7 +412,7 @@ export const NewEventForm = () => {
                     <ImageListItem key={item.url}>
                         <img
                             src={`${item.url}?w=164&h=164&fit=crop&auto=format`}
-                            alt="add new"
+                            alt=""
                             srcSet={`${item.url}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
                             loading="lazy"
                         />
@@ -421,11 +422,11 @@ export const NewEventForm = () => {
                                     Agregar nueva imagen
                                 </Typography>
                                 <input
-                                type="file"
-                                name=""
-                                id="contained-button-file"
-                                onChange={(event) => handleSubmitImage(event)}
-                                hidden
+                                    type="file"
+                                    name=""
+                                    id="contained-button-file"
+                                    onChange={(event) => handleSubmitImage(event)}
+                                    hidden
                                 />
                                 <label htmlFor="contained-button-file">
                                     <IconButton style={{ position: 'absolute', top: "2%", left: "75%", backgroundColor: "white" }} 
