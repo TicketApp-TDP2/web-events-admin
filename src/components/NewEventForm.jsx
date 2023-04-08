@@ -550,9 +550,11 @@ export const NewEventForm = () => {
                         />
                     </Grid>
                 </Grid>
-                <Button variant="contained" size="large" onClick={() => handleAddAgenda()}>
-                    Agregar
-                </Button>
+                <Box display="flex" justifyContent="flex-end" marginTop={2}>
+                    <Button variant="contained" size="large" onClick={() => handleAddAgenda()} >
+                        Agregar
+                    </Button>
+                </Box>
             </Box>
         </Modal>
         {eventData.agenda.map((event, idx) => (
