@@ -9,7 +9,8 @@ import { ref, uploadBytes, uploadBytesResumable, getDownloadURL } from "firebase
 import { FirebaseContext } from '../../index';
 import {v4} from 'uuid';
 import AddBoxIcon from "@mui/icons-material/AddBox";
-
+import ImageIcon from '@mui/icons-material/Image';
+import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 
 const defaultUser = {
   id: "",
@@ -20,11 +21,6 @@ const defaultUser = {
   profession: "",
 }
 
-//-----------------------------
-
-
-
-//-----------------------------
 
 
 export const ProfileScreen = () => {
@@ -49,17 +45,13 @@ export const ProfileScreen = () => {
   }
   
   const handleUpload = async (event) => {
-    console.log("handleUpload");
     setLoadingImage(true);
     event.preventDefault();
     try {
-      console.log(event.target.files);
-
         const urlImage = await uploadFile(event.target.files[0]);
         addImage(urlImage);
     } catch(e) {
         console.log(e);
-        //setErrorMsg(e);
     }
     setLoadingImage(false);
   }
@@ -69,9 +61,6 @@ export const ProfileScreen = () => {
 
 
   const handleSubmit = async () => {
-    console.log("handleSubmit");
-    console.log("userData:" + JSON.stringify(userData));
-
     await updateOrganizer({
       first_name: userData.first_name,
       last_name: userData.last_name,
@@ -82,9 +71,8 @@ export const ProfileScreen = () => {
     }).then(async (response) => {
       await fetchUser(response.id);
       console.log("TODO OK!" + JSON.stringify(response));
-
     }).catch((error) => {
-      console.log("TODO ERROR!")
+      console.log(error)
     })
     setOpenEditProfile(false);
   }
@@ -93,11 +81,6 @@ export const ProfileScreen = () => {
 
 
     if (user) {
-      console.log("UseEffect entrando");
-      console.log("user.first_name" + user.first_name);
-      console.log("user.last_name" + user.last_name);
-      console.log("user.about_me" + user.about_me);
-
       setUserData({
         id: user.id,
         first_name: user.first_name,
@@ -172,32 +155,33 @@ export const ProfileScreen = () => {
             >
                 <Badge
                     overlap="circular"
-                    badgeContent={<EditIcon/>}
-                    color="primary"
+                    badgeContent={
+                      <div>
+                      <input
+                      type="file"
+                      name=""
+                      id="contained-button-file"
+                      onChange={(event) => handleUpload(event)}
+                      hidden
+                      />
+                      <label htmlFor="contained-button-file">
+                          <IconButton 
+                          component='span'
+                          >
+                              <CreateNewFolderIcon color='primary'/>
+                          </IconButton>
+                      </label>
+                    </div>
+                    }
                     anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-                    //onClick={(event) => handleUpload(event)}
+                    
                 >
                     <Avatar alt={userData.first_name} src={userData.profile_picture} sx={{ width: 250 , height: 250 }}/>
                 </Badge>
                 
             </Grid>
 
-            <div>
-              <input
-              type="file"
-              name=""
-              id="contained-button-file"
-              onChange={(event) => handleUpload(event)}
-              hidden
-              />
-              <label htmlFor="contained-button-file">
-                  <IconButton 
-                  component='span'
-                  >
-                      <AddBoxIcon />
-                  </IconButton>
-              </label>
-            </div>
+
 
 
             <Stack sx={{ pt: 2}}>
