@@ -1,13 +1,18 @@
 import SideBar from '../../components/SideBar';
-import { Typography, Box, Divider, Grid, Button, Stack, Avatar, Badge, TextField, Paper } from '@mui/material';
+import { Typography, Box, Divider, Grid, Button, Stack, Avatar, Badge, TextField, Paper, IconButton } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import { useState, useEffect, useContext } from "react";
 import { updateOrganizer } from '../../services/organizerService';
 import { UserContext } from "../../providers/UserProvider";
-
+import { firebase , storageBucket} from '../../providers/FirebaseProvider';
+import { ref, uploadBytes, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { FirebaseContext } from '../../index';
+import {v4} from 'uuid';
+import AddBoxIcon from "@mui/icons-material/AddBox";
 
 
 const defaultUser = {
+  id: "",
   first_name: "",
   last_name: "",
   about_me: "",
@@ -16,64 +21,85 @@ const defaultUser = {
 }
 
 //-----------------------------
-function handleClick() {
-  console.log('Badge clicked!');
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = 'image/*';
-  input.onchange = handleUpload;
-  input.click();
-}
 
-function handleUpload(event) {
-  const file = event.target.files[0];
-  if (!file) {
-    return;
-  }
 
-  console.log(`Uploading file ${file.name}...`);
-  // Send the file to the server using axios
-  /*
-  const formData = new FormData();
-  formData.append('file', file);
 
-  axios.post('/upload-file', formData)
-    .then(response => {
-      console.log('File uploaded successfully!');
-    })
-    .catch(error => {
-      console.error('Error uploading file:', error);
-    });
-    */
-  // firebase.storage.save().then((res) => {
-    // await updateOrganizer(res.urlFirebase)
-   //})
-}
 //-----------------------------
 
 
 export const ProfileScreen = () => {
   const [openEditProfile, setOpenEditProfile] = useState(false);
   const [userData, setUserData] = useState(defaultUser);
-  //const { user } = useContext(UserContext);
-  const user = {
-    first_name: "Lio",
-    last_name: "Guglielmone",
-    about_me:  "Im just a guy",
-    profile_picture: "https://pbs.twimg.com/profile_images/1485050791488483328/UNJ05AV8_400x400.jpg",
-    profession: "Maestro",
-  } 
-  const { userId } = "6waNhwioOiP1ZEXX8jyotCNT3Ao2";//user.id;
+  const { user } = useContext(UserContext);
+
+  const firebaseContext = useContext(FirebaseContext);
+  const { fetchUser } = useContext(UserContext);
+ 
+  const [loadingImage, setLoadingImage] = useState(false);
+
+  function addImage(url) {
+    setUserData({...userData, profile_picture: url});
+  }
+  
+  async function uploadFile(file) {
+    const storageRef = ref(firebaseContext.storage, 'images/' + v4());
+    await uploadBytes(storageRef, file);
+    const url = await getDownloadURL(storageRef);
+    return url;
+  }
+  
+  const handleUpload = async (event) => {
+    console.log("handleUpload");
+    setLoadingImage(true);
+    event.preventDefault();
+    try {
+      console.log(event.target.files);
+
+        const urlImage = await uploadFile(event.target.files[0]);
+        addImage(urlImage);
+    } catch(e) {
+        console.log(e);
+        //setErrorMsg(e);
+    }
+    setLoadingImage(false);
+  }
+
+
+
 
 
   const handleSubmit = async () => {
-    await updateOrganizer(userId, userData);
+    console.log("handleSubmit");
+    console.log("userData:" + JSON.stringify(userData));
+
+    await updateOrganizer({
+      first_name: userData.first_name,
+      last_name: userData.last_name,
+      profession: userData.profession,
+      about_me: userData.about_me,
+      profile_picture: userData.profile_picture,
+      id: userData.id,
+    }).then(async (response) => {
+      await fetchUser(response.id);
+      console.log("TODO OK!" + JSON.stringify(response));
+
+    }).catch((error) => {
+      console.log("TODO ERROR!")
+    })
     setOpenEditProfile(false);
   }
 
   useEffect(() => {
+
+
     if (user) {
+      console.log("UseEffect entrando");
+      console.log("user.first_name" + user.first_name);
+      console.log("user.last_name" + user.last_name);
+      console.log("user.about_me" + user.about_me);
+
       setUserData({
+        id: user.id,
         first_name: user.first_name,
         last_name: user.last_name,
         about_me:  user.about_me,
@@ -149,11 +175,31 @@ export const ProfileScreen = () => {
                     badgeContent={<EditIcon/>}
                     color="primary"
                     anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-                    onClick={handleClick}
+                    //onClick={(event) => handleUpload(event)}
                 >
                     <Avatar alt={userData.first_name} src={userData.profile_picture} sx={{ width: 250 , height: 250 }}/>
                 </Badge>
+                
             </Grid>
+
+            <div>
+              <input
+              type="file"
+              name=""
+              id="contained-button-file"
+              onChange={(event) => handleUpload(event)}
+              hidden
+              />
+              <label htmlFor="contained-button-file">
+                  <IconButton 
+                  component='span'
+                  >
+                      <AddBoxIcon />
+                  </IconButton>
+              </label>
+            </div>
+
+
             <Stack sx={{ pt: 2}}>
                 <TextField
                     label="Nombre"

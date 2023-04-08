@@ -11,6 +11,7 @@ function UserProvider({ children }) {
   const fetchUser = useCallback(async (id) => {
     const response = await getOrganizer(id);
     localStorage.setItem("user", JSON.stringify(response));
+    console.log("response: " + JSON.stringify(response));
     setUser(response);
   }, []);
 

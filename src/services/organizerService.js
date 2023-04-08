@@ -6,28 +6,28 @@ export async function getOrganizer(userId) {
   );
 
   const user = {
-    firstName: response.data.first_name,
-    lastName: response.data.last_name,
+    first_name: response.data.first_name,
+    last_name: response.data.last_name,
     email: response.data.email,
     id: response.data.id,
     profession: response.data.profession,
-    aboutMe: response.data.about_me,
-    profilePicture: response.data.profile_picture,
+    about_me: response.data.about_me,
+    profile_picture: response.data.profile_picture,
   }
 
   return user;
 }
 
 export async function createOrganizer({
-  firstName,
-  lastName,
+  first_name,
+  last_name,
   email,
   id
 }) {
   const body = {
     email,
-    first_name: firstName,
-    last_name: lastName,
+    first_name: first_name,
+    last_name: last_name,
     id: id
   }
   const response = await axios.post(`/organizers`, body,);
@@ -36,13 +36,22 @@ export async function createOrganizer({
 }
 
 export async function updateOrganizer({
+  first_name,
+  last_name,
+  profession, 
+  about_me,
+  profile_picture,
   id,
-  user,
 }) {
   const body = {
-    user
+  first_name,
+  last_name,
+  profession, 
+  about_me,
+  profile_picture,
   }
-  const response = await axios.post(`/organizers/${id}`, body,);
+  const response = await axios.put(`/organizers/${id}`, body,);
 
+  console.log("response update organizer" + response)
   return response.data;
 }
