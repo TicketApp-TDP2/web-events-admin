@@ -38,3 +38,11 @@ export async function createEvent({
   
     return response.data;
   }
+
+  export async function getEvents(params) {
+    return await axios.get('/events', params);
+  }
+
+  export async function getEvent(id) {
+    return await axios.get(`/events/${id}`);
+  }

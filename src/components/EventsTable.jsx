@@ -16,6 +16,11 @@ import FirstPageIcon from "@mui/icons-material/FirstPage";
 import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import LastPageIcon from "@mui/icons-material/LastPage";
+import {useContext, useEffect, useState} from "react";
+import {getEvents} from "../services/eventService";
+import {UserContext} from "../providers/UserProvider";
+import {useNavigate} from "react-router-dom";
+import {Link} from "@mui/material";
 
 function TablePaginationActions(props) {
   const theme = useTheme();
@@ -89,7 +94,7 @@ function createData(name, location, date, capacity) {
   return { name, location, date, capacity };
 }
 
-const rows = [
+/*const rows = [
   createData(
     "Festival de Música en Vivo",
     "Palermo, Buenos Aires",
@@ -123,12 +128,32 @@ const rows = [
   createData("Marshmallow", "Palermo, Buenos Aires", "2023-05-24", "150/300"),
   createData("Nougat", "Palermo, Buenos Aires", "2023-05-24", "150/300"),
   createData("Oreo", "Palermo, Buenos Aires", "2023-05-24", "150/300"),
-];
+];*/
 
 const rowsPerPage = 10;
 
 export const EventsTable = () => {
   const [page, setPage] = React.useState(0);
+  const { user } = useContext(UserContext);
+  const [rows, setRows] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    console.log("use effect")
+    async function fetchData() {
+        console.log(user)
+      if (user) {
+        getEvents({ organizer: user.id }).then((res) => {
+            setRows(res.data)
+            setIsLoading(false)
+        })
+      }
+      setIsLoading(false)
+    }
+
+    fetchData();
+  }, [user])
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
@@ -137,6 +162,16 @@ export const EventsTable = () => {
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
+
+  if (rows.length === 0) {
+    return (
+        <Box style={{height: "50em"}}>
+          <Paper style={{padding: 10, margin: 10, textAlign: 'center', marginTop: 50}}>
+            No tienes eventos registrados
+          </Paper>
+        </Box>
+    )
+  }
 
   return (
     <TableContainer
@@ -170,11 +205,11 @@ export const EventsTable = () => {
             ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
             : rows
           ).map((row) => (
-            <TableRow key={row.name} sx={{ backgroundColor: "#f3f1fc" }}>
-              <TableCell sx={{ fontWeight: "bold" }}>{row.name}</TableCell>
-              <TableCell align="center">{row.location}</TableCell>
+            <TableRow key={row.name} sx={{ backgroundColor: "#f3f1fc" }} hover selected>
+                <TableCell sx={{ fontWeight: "bold" }}><Link href={`/event/${row.id}`} underline="hover">{row.name}</Link></TableCell>
+              <TableCell align="center">{row.location.description}</TableCell>
               <TableCell align="center">{row.date}</TableCell>
-              <TableCell align="center">{row.capacity}</TableCell>
+              <TableCell align="center">{row.vacants}</TableCell>
             </TableRow>
           ))}
 
@@ -184,13 +219,11 @@ export const EventsTable = () => {
             </TableRow>
           )}
         </TableBody>
-        <TableFooter
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-          }}
-        >
+        <TableFooter>
           <TableRow>
+              <TableCell />
+              <TableCell />
+              <TableCell />
             <TablePagination
               count={rows.length}
               onPageChange={handleChangePage}
