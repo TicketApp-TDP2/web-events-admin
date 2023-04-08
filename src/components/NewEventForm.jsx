@@ -404,18 +404,17 @@ export const NewEventForm = () => {
         </Stack>
         <Typography variant="h5" sx={{ marginRight: 2, marginLeft: 2 }}>Galeria de Fotos</Typography>
         <Stack spacing={2} mt={5}>
-            <ImageList sx={{ width: 500, height: 350 }} cols={3} rowHeight={164}>
+            <ImageList sx={{ width: "100%", height: 350 }} cols={7} rowHeight={164}>
                 {eventData.images_urls.map((item, idx) => (
                     <ImageListItem key={item.url}>
                         <img
                             src={`${item.url}?w=164&h=164&fit=crop&auto=format`}
-                            alt="add new"
                             srcSet={`${item.url}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
                             loading="lazy"
                         />
                         {item.default ? (
                             <div>
-                                <Typography variant="subtitle1" color="primary" style={{ textAlign: "center", position: 'absolute', top: "30%" }}>
+                                <Typography variant="subtitle1" color="primary" style={{ position: 'absolute', top: "50%", marginLeft: 15 }}>
                                     Agregar nueva imagen
                                 </Typography>
                                 <input
