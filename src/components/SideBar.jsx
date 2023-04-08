@@ -11,6 +11,8 @@ import EventNoteIcon from '@mui/icons-material/EventNote';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
+import {useContext} from "react";
+import {UserContext} from "../providers/UserProvider";
 
 
 const DRAWER_WIDTH = 225;
@@ -22,14 +24,16 @@ const RootStyle = styled('div')(({ theme }) => ({
   },
 }));
 
-const data = [
+export default function SideBar() {
+  const { logout } = useContext(UserContext);
+
+  const data = [
     { name: "Eventos", icon: <EventNoteIcon />, navigate: '/events' },
     { name: "Dashboard", icon: <BarChartIcon />, navigate: '/dashboard' },
     { name: "Perfil", icon: <AccountCircleIcon />, navigate: '/profile' },
-    { name: "Salir", icon: <LogoutIcon />, navigate: '' },
+    { name: "Salir", icon: <LogoutIcon onClick={logout} />, navigate: '/' },
   ];
 
-export default function SideBar() {
   const getList = () => (
     <div style={{ width: 250 }}>
       {data.map((item, index) => (

@@ -14,7 +14,6 @@ root.render(
       <UserProvider>
         <App />
       </UserProvider>
-      <App />
     </FirebaseContext.Provider>
   </React.StrictMode>
 );
