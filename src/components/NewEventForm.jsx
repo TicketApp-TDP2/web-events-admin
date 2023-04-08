@@ -23,14 +23,14 @@ import AddIcon from '@mui/icons-material/Add';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
-import MUIEditor, { MUIEditorState } from "react-mui-draft-wysiwyg";
-import { toHTML } from 'react-mui-draft-wysiwyg';
 import {v4} from 'uuid';
 import { createEvent } from "../services/eventService";
 import { UserContext } from "../providers/UserProvider";
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import AutoComplete, {usePlacesWidget} from "react-google-autocomplete";
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 
 const modalStyle = {
     position: 'absolute',
@@ -122,6 +122,7 @@ export const NewEventForm = () => {
         // inputAutocompleteValue: "country",
         options: {
             componentRestrictions: { country: "ar" },
+            types: ["address"]
         },
         defaultValue: eventData.location.description
     });
@@ -288,15 +289,11 @@ export const NewEventForm = () => {
         <LocalizationProvider dateAdapter={AdapterDayjs}>
             <Grid container rowSpacing={1}>
                 <Grid item xs>
-                    <DatePicker 
+                    <DatePicker
                     label="Elegir una fecha"
                     value={eventData.date}
                     onChange={(newValue) => setEventData({...eventData, date: newValue})}
-                    slotProps={{
-                        textField: {
-                        helperText: 'MM / DD / AAAA',
-                        },
-                    }}
+                    format="DD/MM/YYYY"
                     disablePast
                     sx={{width: "95%", pr:2}}
                     />
@@ -307,6 +304,7 @@ export const NewEventForm = () => {
                         value={eventData.start_time}
                         onChange={(newValue) => setEventData({...eventData, start_time: newValue})}
                         sx={{width: "95%", pr:2}}
+                        ampm={false}
                     />
                 </Grid>
                 <Grid item xs>
@@ -315,6 +313,7 @@ export const NewEventForm = () => {
                         value={eventData.end_time}
                         onChange={(newValue) => setEventData({...eventData, end_time: newValue})}
                         sx={{width: "100%"}}
+                        ampm={false}
                     />
                 </Grid>
             </Grid>
@@ -406,26 +405,26 @@ export const NewEventForm = () => {
         </Stack>
         <Typography variant="h5" sx={{ marginRight: 2, marginLeft: 2 }}>Galeria de Fotos</Typography>
         <Stack spacing={2} mt={5}>
-            <ImageList sx={{ width: 500, height: 350 }} cols={3} rowHeight={164}>
+            <ImageList sx={{ width: "100%", height: 350 }} cols={7} rowHeight={164}>
                 {eventData.images_urls.map((item, idx) => (
                     <ImageListItem key={item.url}>
                         <img
                             src={`${item.url}?w=164&h=164&fit=crop&auto=format`}
-                            alt="add new"
                             srcSet={`${item.url}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
+                            alt=""
                             loading="lazy"
                         />
                         {item.default ? (
                             <div>
-                                <Typography variant="subtitle1" color="primary" style={{ textAlign: "center", position: 'absolute', top: "30%" }}>
+                                <Typography variant="subtitle1" color="primary" style={{ position: 'absolute', top: "50%", marginLeft: 15 }}>
                                     Agregar nueva imagen
                                 </Typography>
                                 <input
-                                type="file"
-                                name=""
-                                id="contained-button-file"
-                                onChange={(event) => handleSubmitImage(event)}
-                                hidden
+                                    type="file"
+                                    name=""
+                                    id="contained-button-file"
+                                    onChange={(event) => handleSubmitImage(event)}
+                                    hidden
                                 />
                                 <label htmlFor="contained-button-file">
                                     <IconButton style={{ position: 'absolute', top: "2%", left: "75%", backgroundColor: "white" }} 
@@ -482,6 +481,7 @@ export const NewEventForm = () => {
                                 label="Horario inicio"
                                 value={agendaData.time_init}
                                 onChange={(newValue) => setAgendaData({...agendaData, time_init: newValue})}
+                                ampm={false}
                             />
                         </Grid>
                         <Grid item xs={1}>
@@ -494,6 +494,7 @@ export const NewEventForm = () => {
                                 label="Horario fin"
                                 value={agendaData.time_end}
                                 onChange={(newValue) => setAgendaData({...agendaData, time_end: newValue})}
+                                ampm={false}
                             />
                         </Grid>
                     </LocalizationProvider>
@@ -546,9 +547,11 @@ export const NewEventForm = () => {
                         />
                     </Grid>
                 </Grid>
-                <Button variant="contained" size="large" onClick={() => handleAddAgenda()}>
-                    Agregar
-                </Button>
+                <Box display="flex" justifyContent="flex-end" marginTop={2}>
+                    <Button variant="contained" size="large" onClick={() => handleAddAgenda()} >
+                        Agregar
+                    </Button>
+                </Box>
             </Box>
         </Modal>
         {eventData.agenda.map((event, idx) => (
@@ -561,7 +564,7 @@ export const NewEventForm = () => {
             >
                 <TimelineItem>
                 <TimelineOppositeContent color="textSecondary">
-                    {event.time_init.format('HH:mm A')} - {event.time_end.format('HH:mm A')}
+                    {event.time_init.format('HH:mm')} - {event.time_end.format('HH:mm')}
                 </TimelineOppositeContent>
                     <TimelineSeparator>
                         <TimelineDot />
@@ -587,9 +590,11 @@ export const NewEventForm = () => {
                     rows={4}
                     onChange={(event) => setFaqData({...faqData, answer: event.target.value})}
                 />
-                <Button variant="contained" size="large" onClick={() => handleAddFaq()}>
-                    Agregar
-                </Button>
+                <Box display="flex" justifyContent="flex-end">
+                    <Button variant="contained" size="large" onClick={() => handleAddFaq()}>
+                        Agregar
+                    </Button>
+                </Box>
             </>
         )}
         {eventData.faqs.map((faq, idx) => (
@@ -627,12 +632,15 @@ export const NewEventForm = () => {
                 setOpenError(false);
                 setErrorMsg('');
             }}
-            sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+            sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', borderColor: "#ff5252" }}
         >
             <Box sx={modalStyle}>
-                <Typography variant="body1">
-                    Error
-                </Typography>
+                <Grid container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    <ErrorOutlineIcon sx={{ color: "#ff5252", marginRight: 1 }}/>
+                    <Typography variant="h5">
+                        ¡Ocurrió un error!
+                    </Typography>
+                </Grid>
                 <Typography variant="body1">
                     {errorMsg}
                 </Typography>
@@ -644,8 +652,14 @@ export const NewEventForm = () => {
             sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
         >
         <Box sx={modalStyle}>
+            <Grid container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <CheckCircleOutlineIcon sx={{ color: "#4caf50", marginRight: 1 }}/>
+                <Typography variant="h5">
+                    ¡Éxito!
+                </Typography>
+            </Grid>
             <Typography variant="body1">
-                Exito!
+                El evento se ha creado correctamente
             </Typography>
         </Box>
       </Modal>

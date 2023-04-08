@@ -9,6 +9,7 @@ import { NewEventScreen } from './screens/NewEventScreen/NewEventScreen';
 import { DashboardScreen } from './screens/DashboardScreen/DashboardScreen';
 import { ProfileScreen } from './screens/ProfileScreen/ProfileScreen';
 import { createTheme, ThemeProvider} from '@mui/material/styles';
+import {EventDetailScreen} from "./screens/EventDetailScreen/EventDetailScreen";
 
 const router = createBrowserRouter([
   {
@@ -26,6 +27,9 @@ const router = createBrowserRouter([
   }, {
     path: '/profile',
     element: <ProfileScreen />
+  }, {
+    path: '/event/:eventId',
+    element: <EventDetailScreen />
   }
 ]);
 
