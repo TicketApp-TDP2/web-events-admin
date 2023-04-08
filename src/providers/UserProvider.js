@@ -1,10 +1,12 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, {useCallback, useContext, useEffect, useState} from "react";
 import { getOrganizer } from "../services/organizerService";
+import {FirebaseContext} from "../index";
 
 export const UserContext = React.createContext({});
 
 function UserProvider({ children }) {
-  const [user, setUser] = useState({});
+  const [user, setUser] = useState(null);
+  const firebaseContext = useContext(FirebaseContext);
 
   const fetchUser = useCallback(async (id) => {
     const response = await getOrganizer(id);
@@ -13,8 +15,11 @@ function UserProvider({ children }) {
   }, []);
 
   const logout = () => {
-    localStorage.removeItem("user");
-    setUser({});
+    firebaseContext.auth.signOut().then((out) => {
+      console.log("user signed out");
+      localStorage.removeItem("user");
+      setUser(null);
+    })
   }
 
   useEffect(() => {
