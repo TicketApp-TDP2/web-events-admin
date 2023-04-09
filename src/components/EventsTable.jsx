@@ -144,6 +144,7 @@ export const EventsTable = () => {
     async function fetchData() {
         console.log(user)
       if (user) {
+        console.log("user.id: " + user.id);
         getEvents({ organizer: user.id }).then((res) => {
             setRows(res.data)
             setIsLoading(false)

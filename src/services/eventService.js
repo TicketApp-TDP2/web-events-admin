@@ -40,7 +40,8 @@ export async function createEvent({
   }
 
   export async function getEvents(params) {
-    return await axios.get('/events', params);
+    console.log(params)
+    return await axios.get('/events', { params });
   }
 
   export async function getEvent(id) {
