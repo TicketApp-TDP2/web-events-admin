@@ -1,4 +1,4 @@
-import { Grid, Button, Box } from '@mui/material';
+import { Grid, Button, Box, CircularProgress } from '@mui/material';
 import GoogleIcon from '@mui/icons-material/Google';
 import { useNavigate } from 'react-router-dom';
 import { useContext, useState, useEffect } from "react";
@@ -12,9 +12,11 @@ export const LandingScreen = () => {
     const firebaseContext = useContext(FirebaseContext);
     const { fetchUser } = useContext(UserContext);
     const [userId, setUserId] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleLogIn = async () => {
+        setIsLoading(true);
         signInWithPopup(firebaseContext.auth, firebaseContext.provider)
         .then((result) => {
             const additionalUserInfo = getAdditionalUserInfo(result)
@@ -46,6 +48,7 @@ export const LandingScreen = () => {
     async function fetchData() {
         if (userId) {
             await fetchUser(userId);
+            setIsLoading(false);
             navigate('events');
         }
     }
@@ -64,13 +67,20 @@ export const LandingScreen = () => {
         style={{ minHeight: '100vh', m: 1}}
         >
             <img src="/Logo.png" alt="logo" />
-            <Box sx={{ '& button': { m: 1, mt:2, } }}>
-                <div>
-                    <Button variant="contained" size="large" color="primary" startIcon={<GoogleIcon />} onClick={() => handleLogIn()}>
-                    Continuar con Google
-                    </Button>
-                </div>
-            </Box>
+            {!isLoading && (
+                <Box sx={{ '& button': { m: 1, mt:2, } }}>
+                    <div>
+                        <Button variant="contained" size="large" color="primary" startIcon={<GoogleIcon />} onClick={() => handleLogIn()}>
+                        Continuar con Google
+                        </Button>
+                    </div>
+                </Box>
+            )}
+            {isLoading && (
+                <Grid sx={{display: 'flex'}} justifyContent="center" alignItems="center">
+                    <CircularProgress color="primary"/> 
+                </Grid>
+            )}
         </Grid>
     </>
 }
