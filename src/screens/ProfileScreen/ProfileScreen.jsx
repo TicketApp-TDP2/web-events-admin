@@ -42,6 +42,7 @@ export const ProfileScreen = () => {
   const [openSuccess, setOpenSuccess] = useState(false);
   const [openError, setOpenError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
      if (errorMsg) {
@@ -91,6 +92,7 @@ export const ProfileScreen = () => {
   }
 
   const handleSubmit = async () => {
+    setIsLoading(true);
     await updateOrganizer({
       first_name: userData.first_name,
       last_name: userData.last_name,
@@ -99,9 +101,11 @@ export const ProfileScreen = () => {
       profile_picture: userData.profile_picture,
       id: userData.id,
     }).then(async (response) => {
+      setIsLoading(false);
       await fetchUser(response.id);
       setOpenSuccess(true);
     }).catch((error) => {
+      setIsLoading(false);
       setErrorMsg(error);
       console.log(error)
     })
@@ -247,9 +251,14 @@ export const ProfileScreen = () => {
             justifyContent="center"
             sx={{ paddingTop: 5, paddingBottom: 2}}
         >
+          {!isLoading && (
             <Button variant="contained" size="large" color="primary" onClick={handleSubmit} >
                 Confirmar
             </Button>
+          )}
+          {isLoading && (
+            <CircularProgress color="primary"/> 
+          )}
         </Grid>
       </Box>
       )}

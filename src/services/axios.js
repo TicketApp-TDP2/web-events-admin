@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "https://ticketapp-backend-develop.onrender.com/api/",
+  baseURL: process.env.REACT_APP_BACKEND_HOST,
 });
 
 axiosInstance.interceptors.response.use(

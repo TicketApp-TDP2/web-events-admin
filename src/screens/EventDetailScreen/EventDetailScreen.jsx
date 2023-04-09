@@ -20,6 +20,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import GoogleMap from 'google-maps-react-markers';
 import Marker from '../../components/MapMarker';
+import parse from 'html-react-parser';
 
 dayjs.extend(customParseFormat);
 
@@ -83,7 +84,7 @@ export function EventDetailScreen() {
                                 </Grid>
                                 <Grid mt={5}>
                                     <Typography variant="h6" sx={{ marginRight: 2, marginLeft: 2 }}><strong>Descripción</strong></Typography>
-                                    <Typography variant="subtitle1" sx={{ marginRight: 2, marginLeft: 2 }}>{event.description}</Typography>
+                                    <Typography variant="subtitle1" sx={{ marginRight: 2, marginLeft: 2 }}>{parse(event.description)}</Typography>
                                 </Grid>
                                 <Grid mt={5}>
                                     <Typography variant="h6" sx={{ marginRight: 2, marginLeft: 2 }}><strong>Fotos</strong></Typography>

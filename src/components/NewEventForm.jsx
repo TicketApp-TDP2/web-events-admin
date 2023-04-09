@@ -31,6 +31,7 @@ import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import AutoComplete, {usePlacesWidget} from "react-google-autocomplete";
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import { useNavigate } from 'react-router-dom';
 
 const modalStyle = {
     position: 'absolute',
@@ -49,11 +50,7 @@ const defaultValues = {
     name: '',
     date: today,
     type: '',
-    location: {
-        description: '',
-        lat: '',
-        lng: '',
-    },
+    location: {},
     start_time: todayStartOfTheDay,
     end_time: todayStartOfTheDay,
     vacants: '',
@@ -76,6 +73,12 @@ const faqDefaultValues = {
     question: '',
     answer: '',
 }
+const locationDefaultValues = {
+    description: '',
+    lat: '',
+    lng: '',
+}
+    
 const types = {
     Arte_y_Cultura: "Arte y Cultura",
     Musica: "Música",
@@ -102,9 +105,11 @@ export const NewEventForm = () => {
 
     const firebaseContext = useContext(FirebaseContext);
     const { user } = useContext(UserContext);
+    const navigate = useNavigate();
 
     const [eventData, setEventData] = useState(defaultValues);
     const [agendaData, setAgendaData] = useState(agendaDefaultValues);
+    const [locationData, setLocationData] = useState(locationDefaultValues);
     const [faqData, setFaqData] = useState(faqDefaultValues);
     const [loadingImage, setLoadingImage] = useState(false);
     const [openModal, setOpenModal] = useState(false);
@@ -113,11 +118,12 @@ export const NewEventForm = () => {
     const [openSuccess, setOpenSuccess] = useState(false);
     const [openError, setOpenError] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
     const { ref: materialRef } = usePlacesWidget({
         apiKey: process.env.REACT_APP_GEO_APIKEY,
         onPlaceSelected: (place) => {
-            setEventData({...eventData, location: { description: place.formatted_address, lat: place.geometry.location.lat(), lng: place.geometry.location.lng() }})
+            setLocationData({ description: place.formatted_address, lat: place.geometry.location.lat(), lng: place.geometry.location.lng() })
         },
         // inputAutocompleteValue: "country",
         options: {
@@ -232,6 +238,7 @@ export const NewEventForm = () => {
     }
 
     const handleCreateEvent = async () => {
+        setIsLoading(true);
         let newImages = eventData.images_urls.slice();
         newImages.shift();
         let previewImage = "";
@@ -250,12 +257,12 @@ export const NewEventForm = () => {
             }
             newAgenda.push(newElement);
         });
-        console.log("location",eventData.location);
+        console.log("location", locationData);
         const newValues = {
             name: eventData.name,
             date: eventData.date.format('YYYY-MM-DD'), 
             type: eventData.type,
-            location: eventData.location,
+            location: locationData,
             start_time: eventData.start_time.format('HH:mm:ss'),
             end_time: eventData.end_time.format('HH:mm:ss'),
             vacants: parseInt(eventData.vacants),
@@ -268,12 +275,15 @@ export const NewEventForm = () => {
         };
         console.log("newValues", newValues);
         await createEvent(newValues).then((result) => {
+            setIsLoading(false);
             setOpenSuccess(true);
             console.log("response", result)
         }).catch((error) => {
+            setIsLoading(false);
             setErrorMsg(`${error.response.data.detail[0].loc[1]}: ${error.response.data.detail[0].msg}`);
             console.log("creation error", error)
         });
+        navigate('/events');
     }
 
     return <>
@@ -622,9 +632,14 @@ export const NewEventForm = () => {
         justifyContent="center"
         sx={{ paddingTop: 10, paddingBottom: 2}}
         >
-            <Button variant="contained" size="large" color="primary" onClick={handleCreateEvent}>
-                Crear Evento
-            </Button>
+            {!isLoading && (
+                <Button variant="contained" size="large" color="primary" onClick={handleCreateEvent}>
+                    Crear Evento
+                </Button>
+            )}
+            {isLoading && (
+                <CircularProgress color="primary"/> 
+            )}
         </Grid>
         <Modal
             open={openError}
