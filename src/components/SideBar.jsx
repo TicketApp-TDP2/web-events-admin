@@ -93,7 +93,7 @@ export default function SideBar() {
           anchor="left"
           open
         >
-          <img src="/Logo.png" alt="logo" />
+          <img src="/Logo2.png" alt="logo" />
           {getList()}
         </Drawer>
       </RootStyle>
