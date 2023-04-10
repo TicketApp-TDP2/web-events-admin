@@ -20,7 +20,7 @@ import {useContext, useEffect, useState} from "react";
 import {getEvents} from "../services/eventService";
 import {UserContext} from "../providers/UserProvider";
 import {useNavigate} from "react-router-dom";
-import {Link} from "@mui/material";
+import {Button, Link} from "@mui/material";
 
 function TablePaginationActions(props) {
   const theme = useTheme();
@@ -207,7 +207,7 @@ export const EventsTable = () => {
             : rows
           ).map((row) => (
             <TableRow key={row.name} sx={{ backgroundColor: "#f3f1fc" }} hover selected>
-                <TableCell sx={{ fontWeight: "bold" }}><Link href={`/event/${row.id}`} underline="hover">{row.name}</Link></TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}><Button onClick={() => {navigate(`/events/${row.id}`)}} underline="hover">{row.name}</Button></TableCell>
               <TableCell align="center">{row.location.description}</TableCell>
               <TableCell align="center">{row.date}</TableCell>
               <TableCell align="center">{row.vacants}</TableCell>
