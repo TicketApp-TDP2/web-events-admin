@@ -1,6 +1,7 @@
 import './App.css';
 import {
   createBrowserRouter,
+  createHashRouter,
   RouterProvider
 } from "react-router-dom";
 import { LandingScreen } from './screens/LandingScreen/LandingScreen';
@@ -11,7 +12,7 @@ import { ProfileScreen } from './screens/ProfileScreen/ProfileScreen';
 import { createTheme, ThemeProvider} from '@mui/material/styles';
 import {EventDetailScreen} from "./screens/EventDetailScreen/EventDetailScreen";
 
-const router = createBrowserRouter([
+const router = createHashRouter([
   {
     path: '/',
     element: <LandingScreen />
@@ -28,7 +29,7 @@ const router = createBrowserRouter([
     path: '/profile',
     element: <ProfileScreen />
   }, {
-    path: '/event/:eventId',
+    path: '/events/:eventId',
     element: <EventDetailScreen />
   }
 ]);
