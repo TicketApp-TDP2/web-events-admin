@@ -277,13 +277,13 @@ export const NewEventForm = () => {
         await createEvent(newValues).then((result) => {
             setIsLoading(false);
             setOpenSuccess(true);
+            navigate('/events');
             console.log("response", result)
         }).catch((error) => {
             setIsLoading(false);
             setErrorMsg(`${error.response.data.detail[0].loc[1]}: ${error.response.data.detail[0].msg}`);
             console.log("creation error", error)
         });
-        navigate('/events');
     }
 
     return <>
