@@ -166,17 +166,21 @@ export const NewEventForm = () => {
     }
 
     const handleSubmitImage = async (event) => {
-        setLoadingImage(true);
-        event.preventDefault();
-        try {
-            console.log(event.target.files)
-            const urlImage = await uploadFile(event.target.files[0]);
-            addImage(urlImage, false);
-        } catch(e) {
-            console.log(e);
-            setErrorMsg(e);
+        if(eventData.images_urls.lenght === 10){
+            setErrorMsg("No se permiten subir mas de 10 imagenes!")
+        } else {
+            setLoadingImage(true);
+            event.preventDefault();
+            try {
+                console.log(event.target.files)
+                const urlImage = await uploadFile(event.target.files[0]);
+                addImage(urlImage, false);
+            } catch(e) {
+                console.log(e);
+                setErrorMsg(e);
+            }
+            setLoadingImage(false);
         }
-        setLoadingImage(false);
     }
 
     function ImageModal() {
@@ -205,15 +209,19 @@ export const NewEventForm = () => {
     }
 
     const handleAddFaq = () => {
-        const newElement = {
-            question: faqData.question,
-            answer: faqData.answer,
-        };
-        const newFaq = eventData.faqs.slice();
-        newFaq.push(newElement);
-        setEventData({...eventData, faqs: newFaq});
-        setFaqData(faqDefaultValues);
-        handleCloseFAQ();
+        if(eventData.faqs.lenght === 30){
+            setErrorMsg("No se permiten subir mas de 30 FAQs!")
+        } else {
+            const newElement = {
+                question: faqData.question,
+                answer: faqData.answer,
+            };
+            const newFaq = eventData.faqs.slice();
+            newFaq.push(newElement);
+            setEventData({...eventData, faqs: newFaq});
+            setFaqData(faqDefaultValues);
+            handleCloseFAQ();
+        }
     }
 
     const handleOpenModal = () => {
