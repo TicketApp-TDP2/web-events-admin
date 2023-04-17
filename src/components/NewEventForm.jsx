@@ -166,7 +166,7 @@ export const NewEventForm = () => {
     }
 
     const handleSubmitImage = async (event) => {
-        if(eventData.images_urls.lenght === 10){
+        if(eventData.images_urls.length === 11){
             setErrorMsg("No se permiten subir mas de 10 imagenes!")
         } else {
             setLoadingImage(true);
@@ -209,7 +209,7 @@ export const NewEventForm = () => {
     }
 
     const handleAddFaq = () => {
-        if(eventData.faqs.lenght === 30){
+        if(eventData.faqs.length === 30){
             setErrorMsg("No se permiten subir mas de 30 FAQs!")
         } else {
             const newElement = {
