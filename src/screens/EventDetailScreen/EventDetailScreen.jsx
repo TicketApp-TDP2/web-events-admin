@@ -37,7 +37,7 @@ import Marker from "../../components/MapMarker";
 import parse from "html-react-parser";
 import { State } from "../../components/State";
 import { useNavigate } from "react-router-dom";
-import { publishEvent } from "../../services/eventService";
+import { publishEvent, cancelEvent } from "../../services/eventService";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 
@@ -55,6 +55,7 @@ export function EventDetailScreen() {
   const [errorMsg, setErrorMsg] = useState("");
   const navigate = useNavigate();
   const [openError, setOpenError] = useState(false);
+  const [successName, setSuccessName] = useState("");
 
   useEffect(() => {
     console.log("useEffect");
@@ -71,6 +72,25 @@ export function EventDetailScreen() {
       .then((result) => {
         setIsLoading(false);
         setOpenSuccess(true);
+        setSuccessName("publicado");
+        navigate("/events");
+        console.log("response", result);
+      })
+      .catch((error) => {
+        setIsLoading(false);
+        setErrorMsg(`${error.response.data.detail}`);
+        console.log("publish error", error);
+      });
+  };
+
+  const handleCancelEvent = async () => {
+    setIsLoading(true);
+
+    await cancelEvent(eventId)
+      .then((result) => {
+        setIsLoading(false);
+        setOpenSuccess(true);
+        setSuccessName("cancelado");
         navigate("/events");
         console.log("response", result);
       })
@@ -298,27 +318,37 @@ export function EventDetailScreen() {
                     </Accordion>
                   ))}
                 </Grid>
-                {event.state === "Borrador" && (
-                  <Grid
-                    container
-                    direction="column"
-                    alignItems="center"
-                    justifyContent="center"
-                    sx={{ paddingTop: 10, paddingBottom: 2 }}
-                  >
-                    {!isLoading && (
+                <Grid
+                  container
+                  direction="row"
+                  alignItems="center"
+                  justifyContent="space-around"
+                  sx={{ paddingTop: 10, paddingBottom: 2 }}
+                >
+                  {event.state === "Borrador" && !isLoading && (
+                    <Button
+                      variant="contained"
+                      size="large"
+                      color="primary"
+                      onClick={handlePublishEvent}
+                    >
+                      Publicar Evento
+                    </Button>
+                  )}
+                  {(event.state === "Borrador" ||
+                    event.state === "Publicado") &&
+                    !isLoading && (
                       <Button
                         variant="contained"
                         size="large"
                         color="primary"
-                        onClick={handlePublishEvent}
+                        onClick={handleCancelEvent}
                       >
-                        Publicar Evento
+                        Cancelar Evento
                       </Button>
                     )}
-                    {isLoading && <CircularProgress color="primary" />}
-                  </Grid>
-                )}
+                  {isLoading && <CircularProgress color="primary" />}
+                </Grid>
               </Grid>
             </Box>
           </Paper>
@@ -370,7 +400,7 @@ export function EventDetailScreen() {
             <Typography variant="h5">¡Éxito!</Typography>
           </Grid>
           <Typography variant="body1">
-            El evento se ha publicado correctamente
+            El evento se ha {successName} correctamente
           </Typography>
         </Box>
       </Modal>

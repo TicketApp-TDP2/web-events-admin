@@ -48,3 +48,7 @@ export async function getEvent(id) {
 export async function publishEvent(id) {
   return await axios.put(`/events/${id}/publish`);
 }
+
+export async function cancelEvent(id) {
+  return await axios.put(`/events/${id}/cancel`);
+}
