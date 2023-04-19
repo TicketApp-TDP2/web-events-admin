@@ -8,6 +8,9 @@ import {
   Paper,
   Typography,
   ImageList,
+  Button,
+  CircularProgress,
+  Modal,
 } from "@mui/material";
 import { useParams } from "react-router-dom";
 import React, { useEffect, useRef, useState } from "react";
@@ -33,6 +36,10 @@ import GoogleMap from "google-maps-react-markers";
 import Marker from "../../components/MapMarker";
 import parse from "html-react-parser";
 import { State } from "../../components/State";
+import { useNavigate } from "react-router-dom";
+import { publishEvent } from "../../services/eventService";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 
 dayjs.extend(customParseFormat);
 
@@ -43,6 +50,36 @@ export function EventDetailScreen() {
 
   const mapRef = useRef(null);
   const [mapReady, setMapReady] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [openSuccess, setOpenSuccess] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+  const navigate = useNavigate();
+  const [openError, setOpenError] = useState(false);
+
+  useEffect(() => {
+    console.log("useEffect");
+    if (errorMsg) {
+      console.log("hay error");
+      setOpenError(true);
+    }
+  }, [errorMsg]);
+
+  const handlePublishEvent = async () => {
+    setIsLoading(true);
+
+    await publishEvent(eventId)
+      .then((result) => {
+        setIsLoading(false);
+        setOpenSuccess(true);
+        navigate("/events");
+        console.log("response", result);
+      })
+      .catch((error) => {
+        setIsLoading(false);
+        setErrorMsg(`${error.response.data.detail}`);
+        console.log("publish error", error);
+      });
+  };
 
   /**
    * @description This function is called when the map is ready
@@ -261,11 +298,93 @@ export function EventDetailScreen() {
                     </Accordion>
                   ))}
                 </Grid>
+                {event.state === "Borrador" && (
+                  <Grid
+                    container
+                    direction="column"
+                    alignItems="center"
+                    justifyContent="center"
+                    sx={{ paddingTop: 10, paddingBottom: 2 }}
+                  >
+                    {!isLoading && (
+                      <Button
+                        variant="contained"
+                        size="large"
+                        color="primary"
+                        onClick={handlePublishEvent}
+                      >
+                        Publicar Evento
+                      </Button>
+                    )}
+                    {isLoading && <CircularProgress color="primary" />}
+                  </Grid>
+                )}
               </Grid>
             </Box>
           </Paper>
         </Box>
       )}
+      <Modal
+        open={openError}
+        onClose={() => {
+          setOpenError(false);
+          setErrorMsg("");
+        }}
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          borderColor: "#ff5252",
+        }}
+      >
+        <Box sx={modalStyle}>
+          <Grid
+            container
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <ErrorOutlineIcon sx={{ color: "#ff5252", marginRight: 1 }} />
+            <Typography variant="h5">¡Ocurrió un error!</Typography>
+          </Grid>
+          <Typography variant="body1">{errorMsg}</Typography>
+        </Box>
+      </Modal>
+      <Modal
+        open={openSuccess}
+        onClose={() => setOpenSuccess(false)}
+        sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
+      >
+        <Box sx={modalStyle}>
+          <Grid
+            container
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <CheckCircleOutlineIcon sx={{ color: "#4caf50", marginRight: 1 }} />
+            <Typography variant="h5">¡Éxito!</Typography>
+          </Grid>
+          <Typography variant="body1">
+            El evento se ha publicado correctamente
+          </Typography>
+        </Box>
+      </Modal>
     </Box>
   );
 }
+
+const modalStyle = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 400,
+  bgcolor: "background.paper",
+  boxShadow: 24,
+  p: 4,
+};
