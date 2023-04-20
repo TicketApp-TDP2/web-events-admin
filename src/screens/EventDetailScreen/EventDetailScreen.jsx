@@ -40,6 +40,7 @@ import { useNavigate } from "react-router-dom";
 import { publishEvent, cancelEvent } from "../../services/eventService";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import Swal from 'sweetalert2';
 
 dayjs.extend(customParseFormat);
 
@@ -51,19 +52,7 @@ export function EventDetailScreen() {
   const mapRef = useRef(null);
   const [mapReady, setMapReady] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [openSuccess, setOpenSuccess] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
   const navigate = useNavigate();
-  const [openError, setOpenError] = useState(false);
-  const [successName, setSuccessName] = useState("");
-
-  useEffect(() => {
-    console.log("useEffect");
-    if (errorMsg) {
-      console.log("hay error");
-      setOpenError(true);
-    }
-  }, [errorMsg]);
 
   const handlePublishEvent = async () => {
     setIsLoading(true);
@@ -71,14 +60,26 @@ export function EventDetailScreen() {
     await publishEvent(eventId)
       .then((result) => {
         setIsLoading(false);
-        setOpenSuccess(true);
-        setSuccessName("publicado");
-        navigate("/events");
+        Swal.fire({
+          title: '¡Éxito!',
+          text: 'El evento se ha publicado correctamente',
+          icon: 'success',
+          confirmButtonColor: 'green',
+        }).then(function() {
+          navigate("/events");
+        });
         console.log("response", result);
       })
       .catch((error) => {
         setIsLoading(false);
-        setErrorMsg(`${error.response.data.detail}`);
+        let errorText = "Ocurrió un error."
+        errorText = errorText.concat(` ${error.response.data.detail}`);
+        Swal.fire({
+          title: '¡Error!',
+          text: errorText,
+          icon: 'error',
+          confirmButtonColor: 'red',
+        });
         console.log("publish error", error);
       });
   };
@@ -89,14 +90,26 @@ export function EventDetailScreen() {
     await cancelEvent(eventId)
       .then((result) => {
         setIsLoading(false);
-        setOpenSuccess(true);
-        setSuccessName("cancelado");
-        navigate("/events");
+        Swal.fire({
+          title: '¡Éxito!',
+          text: 'El evento se ha cancelado correctamente',
+          icon: 'success',
+          confirmButtonColor: 'green',
+        }).then(function() {
+          navigate("/events");
+        });
         console.log("response", result);
       })
       .catch((error) => {
         setIsLoading(false);
-        setErrorMsg(`${error.response.data.detail}`);
+        let errorText = "Ocurrió un error."
+        errorText = errorText.concat(` ${error.response.data.detail}`);
+        Swal.fire({
+          title: '¡Error!',
+          text: errorText,
+          icon: 'error',
+          confirmButtonColor: 'red',
+        });
         console.log("publish error", error);
       });
   };
@@ -147,7 +160,7 @@ export function EventDetailScreen() {
               borderRadius: 20,
             }}
           >
-            <Box sx={{ display: "flex" }}>
+            <Box sx={{ display: "flex" , marginLeft: 3, paddingTop: 3}}>
               <Grid>
                 <Grid>
                   <div
@@ -238,28 +251,30 @@ export function EventDetailScreen() {
                 <Grid mt={5}>
                   <Typography
                     variant="h6"
-                    sx={{ marginRight: 2, marginLeft: 2 }}
+                    sx={{ marginRight: 2, marginLeft: 2, marginBottom: 1 }}
                   >
                     <strong>Ubicación</strong>
                   </Typography>
-                  <GoogleMap
-                    apiKey={process.env.REACT_APP_GEO_APIKEY}
-                    defaultCenter={{
-                      lat: event.location.lat,
-                      lng: event.location.lng,
-                    }}
-                    defaultZoom={15}
-                    mapMinHeight="50vh"
-                    onGoogleApiLoaded={onGoogleApiLoaded}
-                  >
-                    <Marker
-                      key={1}
-                      lat={event.location.lat}
-                      lng={event.location.lng}
-                      markerId={event.location.description}
-                      className="marker"
-                    />
-                  </GoogleMap>
+                  <Grid sx={{paddingLeft: 2}}>
+                    <GoogleMap
+                      apiKey={process.env.REACT_APP_GEO_APIKEY}
+                      defaultCenter={{
+                        lat: event.location.lat,
+                        lng: event.location.lng,
+                      }}
+                      defaultZoom={15}
+                      mapMinHeight="50vh"
+                      onGoogleApiLoaded={onGoogleApiLoaded}
+                    >
+                      <Marker
+                        key={1}
+                        lat={event.location.lat}
+                        lng={event.location.lng}
+                        markerId={event.location.description}
+                        className="marker"
+                      />
+                    </GoogleMap>
+                  </Grid>
                 </Grid>
                 <Grid mt={5}>
                   <Typography
@@ -341,7 +356,7 @@ export function EventDetailScreen() {
                       <Button
                         variant="contained"
                         size="large"
-                        color="primary"
+                        color="error"
                         onClick={handleCancelEvent}
                       >
                         Cancelar Evento
@@ -354,56 +369,6 @@ export function EventDetailScreen() {
           </Paper>
         </Box>
       )}
-      <Modal
-        open={openError}
-        onClose={() => {
-          setOpenError(false);
-          setErrorMsg("");
-        }}
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          borderColor: "#ff5252",
-        }}
-      >
-        <Box sx={modalStyle}>
-          <Grid
-            container
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <ErrorOutlineIcon sx={{ color: "#ff5252", marginRight: 1 }} />
-            <Typography variant="h5">¡Ocurrió un error!</Typography>
-          </Grid>
-          <Typography variant="body1">{errorMsg}</Typography>
-        </Box>
-      </Modal>
-      <Modal
-        open={openSuccess}
-        onClose={() => setOpenSuccess(false)}
-        sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
-      >
-        <Box sx={modalStyle}>
-          <Grid
-            container
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <CheckCircleOutlineIcon sx={{ color: "#4caf50", marginRight: 1 }} />
-            <Typography variant="h5">¡Éxito!</Typography>
-          </Grid>
-          <Typography variant="body1">
-            El evento se ha {successName} correctamente
-          </Typography>
-        </Box>
-      </Modal>
     </Box>
   );
 }
