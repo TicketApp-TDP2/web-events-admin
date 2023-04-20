@@ -133,8 +133,6 @@ export const NewEventForm = () => {
         defaultValue: eventData.location.description
     });
 
-    // style={{ height: "50px", fontStyle: "Urbanist" }}
-
     useEffect(() => {
      console.log("useEffect");
       if (errorMsg) {
@@ -249,7 +247,8 @@ export const NewEventForm = () => {
         };
         const newAgenda = eventData.agenda.slice();
         newAgenda.push(newElement);
-        setEventData({...eventData, agenda: newAgenda})
+        setEventData({...eventData, agenda: newAgenda});
+        setAgendaData(agendaDefaultValues);
         handleCloseModal();
     }
 
