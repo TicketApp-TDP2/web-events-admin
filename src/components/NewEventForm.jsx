@@ -165,10 +165,18 @@ export const NewEventForm = () => {
         return url;
     }
 
+    function validateImageSize(image) {
+        return image.size < 3000000;
+    }
+
     const handleSubmitImage = async (event) => {
-        if(eventData.images_urls.length === 11){
+        if (eventData.images_urls.length === 11) {
             setErrorMsg("No se permiten subir mas de 10 imagenes!")
         } else {
+            if (!validateImageSize(event.target.files[0])) {
+                setErrorMsg("El tamaño máximo permitido es de 3MB")
+                return;
+            }
             setLoadingImage(true);
             event.preventDefault();
             try {

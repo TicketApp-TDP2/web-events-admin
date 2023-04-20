@@ -251,6 +251,7 @@ export const EventsTable = () => {
             <TableCell />
             <TableCell />
             <TableCell />
+            <TableCell />
             <TablePagination
               count={rows.length}
               onPageChange={handleChangePage}
