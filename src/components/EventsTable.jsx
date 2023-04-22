@@ -16,11 +16,12 @@ import FirstPageIcon from "@mui/icons-material/FirstPage";
 import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import LastPageIcon from "@mui/icons-material/LastPage";
-import {useContext, useEffect, useState} from "react";
-import {getEvents} from "../services/eventService";
-import {UserContext} from "../providers/UserProvider";
-import {useNavigate} from "react-router-dom";
-import {Button, Link} from "@mui/material";
+import { useContext, useEffect, useState } from "react";
+import { getEvents } from "../services/eventService";
+import { UserContext } from "../providers/UserProvider";
+import { useNavigate } from "react-router-dom";
+import { Button, Link } from "@mui/material";
+import { State } from "./State";
 
 function TablePaginationActions(props) {
   const theme = useTheme();
@@ -140,21 +141,21 @@ export const EventsTable = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("use effect")
+    console.log("use effect");
     async function fetchData() {
-        console.log(user)
+      console.log(user);
       if (user) {
         console.log("user.id: " + user.id);
         getEvents({ organizer: user.id }).then((res) => {
-            setRows(res.data)
-            setIsLoading(false)
-        })
+          setRows(res.data);
+          setIsLoading(false);
+        });
       }
-      setIsLoading(false)
+      setIsLoading(false);
     }
 
     fetchData();
-  }, [user])
+  }, [user]);
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
@@ -166,12 +167,19 @@ export const EventsTable = () => {
 
   if (rows.length === 0) {
     return (
-        <Box style={{height: "50em"}}>
-          <Paper style={{padding: 10, margin: 10, textAlign: 'center', marginTop: 50}}>
-            No tienes eventos registrados
-          </Paper>
-        </Box>
-    )
+      <Box style={{ height: "50em" }}>
+        <Paper
+          style={{
+            padding: 10,
+            margin: 10,
+            textAlign: "center",
+            marginTop: 50,
+          }}
+        >
+          No tienes eventos registrados
+        </Paper>
+      </Box>
+    );
   }
 
   return (
@@ -189,16 +197,17 @@ export const EventsTable = () => {
       >
         <TableHead>
           <TableRow>
-            <TableCell style={{ width: "25%" }}>Nombre</TableCell>
-            <TableCell style={{ width: "25%" }} align="center">
+            <TableCell style={{ width: "20%" }}>Nombre</TableCell>
+            <TableCell style={{ width: "20%" }} align="center">
               Ubicación
             </TableCell>
-            <TableCell style={{ width: "25%" }} align="center">
+            <TableCell style={{ width: "20%" }} align="center">
               Fecha
             </TableCell>
-            <TableCell style={{ width: "25%" }} align="center">
+            <TableCell style={{ width: "20%" }} align="center">
               Vacantes
             </TableCell>
+            <TableCell style={{ width: "20%" }} align="center"></TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -206,11 +215,28 @@ export const EventsTable = () => {
             ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
             : rows
           ).map((row) => (
-            <TableRow key={row.name} sx={{ backgroundColor: "#f3f1fc" }} hover selected>
-              <TableCell sx={{ fontWeight: "bold" }}><Button onClick={() => {navigate(`/events/${row.id}`)}} underline="hover">{row.name}</Button></TableCell>
+            <TableRow
+              key={row.name}
+              sx={{ backgroundColor: "#f3f1fc" }}
+              hover
+              selected
+            >
+              <TableCell sx={{ fontWeight: "bold" }}>
+                <Button
+                  onClick={() => {
+                    navigate(`/events/${row.id}`);
+                  }}
+                  underline="hover"
+                >
+                  {row.name}
+                </Button>
+              </TableCell>
               <TableCell align="center">{row.location.description}</TableCell>
               <TableCell align="center">{row.date}</TableCell>
               <TableCell align="center">{row.vacants}</TableCell>
+              <TableCell align="center">
+                <State state={row.state} />
+              </TableCell>
             </TableRow>
           ))}
 
@@ -222,9 +248,10 @@ export const EventsTable = () => {
         </TableBody>
         <TableFooter>
           <TableRow>
-              <TableCell />
-              <TableCell />
-              <TableCell />
+            <TableCell />
+            <TableCell />
+            <TableCell />
+            <TableCell />
             <TablePagination
               count={rows.length}
               onPageChange={handleChangePage}

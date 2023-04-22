@@ -32,6 +32,7 @@ import AutoComplete, {usePlacesWidget} from "react-google-autocomplete";
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 const modalStyle = {
     position: 'absolute',
@@ -115,9 +116,6 @@ export const NewEventForm = () => {
     const [openModal, setOpenModal] = useState(false);
     const [openFAQ, setOpenFAQ] = useState(false);
     const [html, setHtml] = useState('');
-    const [openSuccess, setOpenSuccess] = useState(false);
-    const [openError, setOpenError] = useState(false);
-    const [errorMsg, setErrorMsg] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
     const { ref: materialRef } = usePlacesWidget({
@@ -132,16 +130,6 @@ export const NewEventForm = () => {
         },
         defaultValue: eventData.location.description
     });
-
-    // style={{ height: "50px", fontStyle: "Urbanist" }}
-
-    useEffect(() => {
-     console.log("useEffect");
-      if (errorMsg) {
-        console.log("hay error");
-        setOpenError(true);
-      }
-    }, [errorMsg]);
     
     const handleTypeChange = (event) => {
         setEventData({...eventData, type: event.target.value});
@@ -165,18 +153,47 @@ export const NewEventForm = () => {
         return url;
     }
 
+    function validateImageSize(image) {
+        return image.size < 3000000;
+    }
+
     const handleSubmitImage = async (event) => {
-        setLoadingImage(true);
-        event.preventDefault();
-        try {
-            console.log(event.target.files)
-            const urlImage = await uploadFile(event.target.files[0]);
-            addImage(urlImage, false);
-        } catch(e) {
-            console.log(e);
-            setErrorMsg(e);
+        if (eventData.images_urls.length === 11) {
+            Swal.fire({
+                title: '¡Error!',
+                text: "No se permiten subir mas de 10 imagenes",
+                icon: 'error',
+                confirmButtonColor: 'red',
+            });
+        } else {
+            if (!validateImageSize(event.target.files[0])) {
+                Swal.fire({
+                    title: '¡Error!',
+                    text: "El tamaño máximo permitido es de 3MB",
+                    icon: 'error',
+                    confirmButtonColor: 'red',
+                });
+                return;
+            }
+            setLoadingImage(true);
+            event.preventDefault();
+            try {
+                console.log(event.target.files)
+                const urlImage = await uploadFile(event.target.files[0]);
+                addImage(urlImage, false);
+            } catch(e) {
+                console.log(e);
+                let errorText = "";
+                errorText = errorText.concat(e);
+                Swal.fire({
+                    title: '¡Error!',
+                    text: errorText,
+                    icon: 'error',
+                    confirmButtonColor: 'red',
+                });
+            }
+            setLoadingImage(false);
         }
-        setLoadingImage(false);
     }
 
     function ImageModal() {
@@ -205,15 +222,24 @@ export const NewEventForm = () => {
     }
 
     const handleAddFaq = () => {
-        const newElement = {
-            question: faqData.question,
-            answer: faqData.answer,
-        };
-        const newFaq = eventData.faqs.slice();
-        newFaq.push(newElement);
-        setEventData({...eventData, faqs: newFaq});
-        setFaqData(faqDefaultValues);
-        handleCloseFAQ();
+        if(eventData.faqs.length === 30){
+            Swal.fire({
+                title: '¡Error!',
+                text: "No se permiten subir mas de 30 FAQs",
+                icon: 'error',
+                confirmButtonColor: 'red',
+            });
+        } else {
+            const newElement = {
+                question: faqData.question,
+                answer: faqData.answer,
+            };
+            const newFaq = eventData.faqs.slice();
+            newFaq.push(newElement);
+            setEventData({...eventData, faqs: newFaq});
+            setFaqData(faqDefaultValues);
+            handleCloseFAQ();
+        }
     }
 
     const handleOpenModal = () => {
@@ -233,7 +259,8 @@ export const NewEventForm = () => {
         };
         const newAgenda = eventData.agenda.slice();
         newAgenda.push(newElement);
-        setEventData({...eventData, agenda: newAgenda})
+        setEventData({...eventData, agenda: newAgenda});
+        setAgendaData(agendaDefaultValues);
         handleCloseModal();
     }
 
@@ -276,14 +303,27 @@ export const NewEventForm = () => {
         console.log("newValues", newValues);
         await createEvent(newValues).then((result) => {
             setIsLoading(false);
-            setOpenSuccess(true);
+            Swal.fire({
+                title: '¡Éxito!',
+                text: 'El evento se ha creado correctamente',
+                icon: 'success',
+                confirmButtonColor: 'green',
+            }).then(function() {
+                navigate('/events');
+            });
             console.log("response", result)
         }).catch((error) => {
             setIsLoading(false);
-            setErrorMsg(`${error.response.data.detail[0].loc[1]}: ${error.response.data.detail[0].msg}`);
+            let errorText = "Ocurrió un error."
+            errorText = errorText.concat(` ${error.response.data.detail[0].loc[1]}: ${error.response.data.detail[0].msg}`);
+            Swal.fire({
+                title: '¡Error!',
+                text: errorText,
+                icon: 'error',
+                confirmButtonColor: 'red',
+            });
             console.log("creation error", error)
         });
-        navigate('/events');
     }
 
     return <>
@@ -641,43 +681,6 @@ export const NewEventForm = () => {
                 <CircularProgress color="primary"/> 
             )}
         </Grid>
-        <Modal
-            open={openError}
-            onClose={() => {
-                setOpenError(false);
-                setErrorMsg('');
-            }}
-            sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', borderColor: "#ff5252" }}
-        >
-            <Box sx={modalStyle}>
-                <Grid container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                    <ErrorOutlineIcon sx={{ color: "#ff5252", marginRight: 1 }}/>
-                    <Typography variant="h5">
-                        ¡Ocurrió un error!
-                    </Typography>
-                </Grid>
-                <Typography variant="body1">
-                    {errorMsg}
-                </Typography>
-            </Box>
-        </Modal>
-        <Modal
-            open={openSuccess}
-            onClose={() => setOpenSuccess(false)}
-            sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
-        >
-        <Box sx={modalStyle}>
-            <Grid container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <CheckCircleOutlineIcon sx={{ color: "#4caf50", marginRight: 1 }}/>
-                <Typography variant="h5">
-                    ¡Éxito!
-                </Typography>
-            </Grid>
-            <Typography variant="body1">
-                El evento se ha creado correctamente
-            </Typography>
-        </Box>
-      </Modal>
     </Stack>
     </>
 }
