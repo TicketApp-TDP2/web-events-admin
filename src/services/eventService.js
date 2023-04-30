@@ -52,3 +52,39 @@ export async function publishEvent(id) {
 export async function cancelEvent(id) {
   return await axios.put(`/events/${id}/cancel`);
 }
+
+export async function updateEvent({
+  name,
+  description,
+  location,
+  organizer,
+  type,
+  images,
+  preview_image,
+  date,
+  start_time,
+  end_time,
+  agenda,
+  vacants,
+  FAQ,
+}) {
+  const body = {
+    name,
+    description,
+    location,
+    organizer,
+    type,
+    images,
+    preview_image,
+    date,
+    start_time,
+    end_time,
+    agenda,
+    vacants,
+    FAQ,
+  };
+
+  const response = await axios.patch(`/events`, body);
+
+  return response.data;
+}

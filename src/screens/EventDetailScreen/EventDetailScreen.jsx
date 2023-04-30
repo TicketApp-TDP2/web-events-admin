@@ -41,6 +41,9 @@ import { publishEvent, cancelEvent } from "../../services/eventService";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import Swal from 'sweetalert2';
+import EditIcon from '@mui/icons-material/Edit';
+import Stack from '@mui/joy/Stack';
+
 
 dayjs.extend(customParseFormat);
 
@@ -148,12 +151,25 @@ export function EventDetailScreen() {
       <SideBar />
       {event && (
         <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-          <Grid item style={{ flexGrow: "1" }}>
-            <Typography variant="h3" sx={{ marginRight: 2 }}>
-              {event.name}
-            </Typography>
-            <hr />
+          <Grid container direction="row"
+                justifyContent="space-between"
+                alignItems="center">
+            <Grid item xs={8}>
+              <Typography variant="h3" sx={{ marginRight: 2 }}>
+                {event.name}
+              </Typography>
+            </Grid>
+            <Grid item xs={1}>
+              <Button variant="text" onClick={() => navigate(`/events/${eventId}/edit`)}>
+                <Stack direction="row" spacing={1}>
+                  <Typography>Editar</Typography>
+                  <EditIcon fontSize="small" />
+                </Stack>
+              </Button>
+            </Grid>
           </Grid>
+
+          <hr />
           <Paper
             style={{
               backgroundColor: "white",
