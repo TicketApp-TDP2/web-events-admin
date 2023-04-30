@@ -11,6 +11,7 @@ import { DashboardScreen } from './screens/DashboardScreen/DashboardScreen';
 import { ProfileScreen } from './screens/ProfileScreen/ProfileScreen';
 import { createTheme, ThemeProvider} from '@mui/material/styles';
 import {EventDetailScreen} from "./screens/EventDetailScreen/EventDetailScreen";
+import EventEditScreen from "./screens/EventEditScreen/EventEditScreen";
 
 const router = createHashRouter([
   {
@@ -31,6 +32,9 @@ const router = createHashRouter([
   }, {
     path: '/events/:eventId',
     element: <EventDetailScreen />
+  }, {
+    path: '/events/:eventId/edit',
+    element: <EventEditScreen />
   }
 ]);
 
