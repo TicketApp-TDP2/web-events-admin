@@ -40,7 +40,7 @@ export default function EventEditScreen() {
     if (isLoading || !event) {
         return <></>
     }
-console.log("El EVENTO",event)
+
     return(
         <Box sx={{ display: 'flex' }}>
             <SideBar/>

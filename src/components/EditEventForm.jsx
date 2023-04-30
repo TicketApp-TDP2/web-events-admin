@@ -59,8 +59,8 @@ export default function EditEventForm(props) {
     const [eventData, setEventData] = useState(props.oldEvent);
     const [locationData, setLocationData] = useState(props.oldEvent.location);
     const [loadingImage, setLoadingImage] = useState(false);
-    
-    const [html, setHtml] = useState('');
+    const [confirmUpdate, setConfirmUpdate] = useState(false);
+    const [html, setHtml] = useState(props.oldEvent.description);
     const [isLoading, setIsLoading] = useState(false);
 
     const { ref: materialRef } = usePlacesWidget({
@@ -123,7 +123,9 @@ export default function EditEventForm(props) {
             try {
                 console.log(event.target.files)
                 const urlImage = await uploadFile(event.target.files[0]);
-                addImage(urlImage, false);
+                eventData.images.push(urlImage);
+                setEventData(eventData)
+                // addImage(urlImage, false);
             } catch(e) {
                 console.log(e);
                 let errorText = "";
@@ -157,15 +159,38 @@ export default function EditEventForm(props) {
         );
     }
 
+    const ConfirmModal = () => {
+        return (
+            <Modal
+                open={confirmUpdate}
+                onClose={() => setConfirmUpdate(false)}
+            >
+                <Box sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    bgcolor: 'background.paper',
+                    border: '2px solid',
+                    borderRadius: 5,
+                    boxShadow: 24,
+                    p: 4
+                }}>
+                    <Typography>¿Estas seguro que deseas efectuar los cambios?</Typography>
+                    <Typography>Se notificará a todos los usuarios inscriptos</Typography>
+                    <Stack direction="row" justifyContent="space-between" mt={2}>
+                        <Button color="error" variant="outlined" onClick={() => setConfirmUpdate(false)}>Cancelar</Button>
+                        <Button color="primary" variant="outlined" onClick={handleUpdateEvent}>Confirmar</Button>
+                    </Stack>
+                </Box>
+            </Modal>
+        )
+    }
+
     const handleUpdateEvent = async () => {
+        setConfirmUpdate(false);
         setIsLoading(true);
         let newImages = eventData.images.slice();
-        newImages.shift();
-        let previewImage = "";
-        if (newImages.length > 0){
-            newImages = newImages.map((image) => image.url);
-            previewImage = newImages[0];
-        }
         const newAgenda = []
         eventData.agenda.forEach(agenda => {
             let newElement = {
@@ -188,23 +213,23 @@ export default function EditEventForm(props) {
             vacants: parseInt(eventData.vacants),
             description: html,
             images: newImages,
-            preview_image: previewImage,
+            preview_image: newImages[0],
             organizer: user.id,
             agenda: newAgenda,
             FAQ: eventData.FAQ,
         };
         console.log("newValues", newValues);
-        /*await updateEvent(newValues).then((result) => {
+        await updateEvent(eventData.id, newValues).then((result) => {
             setIsLoading(false);
             Swal.fire({
                 title: '¡Éxito!',
-                text: 'El evento se ha creado correctamente',
+                text: 'El evento se ha actualizado correctamente',
                 icon: 'success',
                 confirmButtonColor: 'green',
             }).then(function() {
-                navigate('/events');
+                navigate(`/events/${eventData.id}`);
             });
-            console.log("response", result)
+            console.log("update response", result)
         }).catch((error) => {
             setIsLoading(false);
             let errorText = "Ocurrió un error."
@@ -215,87 +240,28 @@ export default function EditEventForm(props) {
                 icon: 'error',
                 confirmButtonColor: 'red',
             });
-            console.log("creation error", error)
-        });*/
+            console.log("update error", error)
+        });
     }
 
-    const ImageViewer = () => {
-        return (
-            <ImageList sx={{ width: "100%", height: 350 }} cols={5} rowHeight={164} gap={20}>
-                {eventData.images.map((item, idx) => (
-                    <ImageListItem key={item}>
-                        <img
-                            src={`${item}?w=164&h=164&fit=crop&auto=format`}
-                            srcSet={`${item}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
-                            alt=""
-                            loading="lazy"
-                        />
-                        <IconButton style={{ position: 'absolute', top: "2%", left: "75%", backgroundColor: "white" }} onClick={() => removeImage(idx)}>
-                            <DeleteIcon />
-                        </IconButton>
-                    </ImageListItem>
-                ))}
-                <ImageListItem style={{background: 'lightgrey'}}>
-                    <Typography variant="subtitle1" color="primary" style={{ marginLeft: 15 }}>
-                        Agregar nueva imagen
-                    </Typography>
-                    <input
-                        type="file"
-                        name=""
-                        id="contained-button-file"
-                        onChange={(event) => handleSubmitImage(event)}
-                        hidden
-                    />
-                    <label htmlFor="contained-button-file">
-                        <IconButton style={{ position: 'absolute', top: "2%", left: "75%", backgroundColor: "white" }}
-                                    component='span'
-                        >
-                            <AddBoxIcon />
-                        </IconButton>
-                    </label>
-                </ImageListItem>
-            </ImageList>
-        )
+    const updateOrConfirmEvent = () => {
+        if (eventData.state === 'Publicado') {
+            setConfirmUpdate(true);
+            return;
+        }
+        handleUpdateEvent();
     }
 
-    const EventTypeSelector = () => {
-        return (
-            <FormControl fullWidth>
-                <InputLabel id="demo-simple-select-label">Tipo</InputLabel>
-                <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    value={eventData.type}
-                    label="Tipo"
-                    onChange={handleTypeChange}
-                    sx={{width: "95%", pr:2}}
-                >
-                    <MenuItem value={types.Arte_y_Cultura}>{types.Arte_y_Cultura}</MenuItem>
-                    <MenuItem value={types.Musica}>{types.Musica}</MenuItem>
-                    <MenuItem value={types.Danza}>{types.Danza}</MenuItem>
-                    <MenuItem value={types.Moda}>{types.Moda}</MenuItem>
-                    <MenuItem value={types.Bellas_Artes}>{types.Bellas_Artes}</MenuItem>
-                    <MenuItem value={types.Cine}>{types.Cine}</MenuItem>
-                    <MenuItem value={types.Turismo}>{types.Turismo}</MenuItem>
-                    <MenuItem value={types.Deporte}>{types.Deporte}</MenuItem>
-                    <MenuItem value={types.Gastronomia}>{types.Gastronomia}</MenuItem>
-                    <MenuItem value={types.Educacion}>{types.Educacion}</MenuItem>
-                    <MenuItem value={types.Empresa}>{types.Empresa}</MenuItem>
-                    <MenuItem value={types.Capacitacion}>{types.Capacitacion}</MenuItem>
-                    <MenuItem value={types.Entretenimiento}>{types.Entretenimiento}</MenuItem>
-                    <MenuItem value={types.Tecnologia}>{types.Tecnologia}</MenuItem>
-                    <MenuItem value={types.Infantil}>{types.Infantil}</MenuItem>
-                    <MenuItem value={types.Debate}>{types.Debate}</MenuItem>
-                    <MenuItem value={types.Conmemoracion}>{types.Conmemoracion}</MenuItem>
-                    <MenuItem value={types.Religion}>{types.Religion}</MenuItem>
-                    <MenuItem value={types.Convencion}>{types.Convencion}</MenuItem>
-                </Select>
-            </FormControl>
-        )
-    }
-
-    const TimePickers = () => {
-        return (
+    return <>
+        <Stack spacing={2} sx={{ pl: 3, pr: 3 }}>
+            <ImageModal />
+            <Stack sx={{ pt: 2}}>
+                <TextField
+                    label="Nombre del evento"
+                    value={eventData.name}
+                    onChange={(event) => setEventData({...eventData, name: event.target.value})}
+                />
+            </Stack>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <Grid container rowSpacing={1}>
                     <Grid item xs>
@@ -328,23 +294,39 @@ export default function EditEventForm(props) {
                     </Grid>
                 </Grid>
             </LocalizationProvider>
-        )
-    }
-
-    return <>
-        <Stack spacing={2} sx={{ pl: 3, pr: 3 }}>
-            <ImageModal />
-            <Stack sx={{ pt: 2}}>
-                <TextField
-                    label="Nombre del evento"
-                    value={eventData.name}
-                    onChange={(event) => setEventData({...eventData, name: event.target.value})}
-                />
-            </Stack>
-            <TimePickers />
             <Grid container>
                 <Grid item xs>
-                    <EventTypeSelector />
+                    <FormControl fullWidth>
+                    <InputLabel id="demo-simple-select-label">Tipo</InputLabel>
+                    <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        value={eventData.type}
+                        label="Tipo"
+                        onChange={handleTypeChange}
+                        sx={{width: "95%", pr:2}}
+                    >
+                        <MenuItem value={types.Arte_y_Cultura}>{types.Arte_y_Cultura}</MenuItem>
+                        <MenuItem value={types.Musica}>{types.Musica}</MenuItem>
+                        <MenuItem value={types.Danza}>{types.Danza}</MenuItem>
+                        <MenuItem value={types.Moda}>{types.Moda}</MenuItem>
+                        <MenuItem value={types.Bellas_Artes}>{types.Bellas_Artes}</MenuItem>
+                        <MenuItem value={types.Cine}>{types.Cine}</MenuItem>
+                        <MenuItem value={types.Turismo}>{types.Turismo}</MenuItem>
+                        <MenuItem value={types.Deporte}>{types.Deporte}</MenuItem>
+                        <MenuItem value={types.Gastronomia}>{types.Gastronomia}</MenuItem>
+                        <MenuItem value={types.Educacion}>{types.Educacion}</MenuItem>
+                        <MenuItem value={types.Empresa}>{types.Empresa}</MenuItem>
+                        <MenuItem value={types.Capacitacion}>{types.Capacitacion}</MenuItem>
+                        <MenuItem value={types.Entretenimiento}>{types.Entretenimiento}</MenuItem>
+                        <MenuItem value={types.Tecnologia}>{types.Tecnologia}</MenuItem>
+                        <MenuItem value={types.Infantil}>{types.Infantil}</MenuItem>
+                        <MenuItem value={types.Debate}>{types.Debate}</MenuItem>
+                        <MenuItem value={types.Conmemoracion}>{types.Conmemoracion}</MenuItem>
+                        <MenuItem value={types.Religion}>{types.Religion}</MenuItem>
+                        <MenuItem value={types.Convencion}>{types.Convencion}</MenuItem>
+                    </Select>
+                </FormControl>
                 </Grid>
                 <Grid item xs>
                     <TextField
@@ -398,11 +380,44 @@ export default function EditEventForm(props) {
             </Stack>
             <Typography variant="h5" sx={{ marginRight: 2, marginLeft: 2 }}>Galeria de Fotos</Typography>
             <Stack spacing={2} mt={5}>
-                <ImageViewer />
+                <ImageList sx={{ width: "100%", height: 350 }} cols={5} rowHeight={164} gap={20}>
+                    {eventData.images.map((item, idx) => (
+                        <ImageListItem key={item}>
+                            <img
+                                src={`${item}?w=164&h=164&fit=crop&auto=format`}
+                                srcSet={`${item}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
+                                alt=""
+                                loading="lazy"
+                            />
+                            <IconButton style={{ position: 'absolute', top: "2%", left: "75%", backgroundColor: "white" }} onClick={() => removeImage(idx)}>
+                                <DeleteIcon />
+                            </IconButton>
+                        </ImageListItem>
+                    ))}
+                    <ImageListItem style={{background: 'lightgrey'}}>
+                        <Typography variant="subtitle1" color="primary" style={{ marginLeft: 15 }}>
+                            Agregar nueva imagen
+                        </Typography>
+                        <input
+                            type="file"
+                            name=""
+                            id="contained-button-file"
+                            onChange={(event) => handleSubmitImage(event)}
+                            hidden
+                        />
+                        <label htmlFor="contained-button-file">
+                            <IconButton style={{ position: 'absolute', top: "2%", left: "75%", backgroundColor: "white" }}
+                                        component='span'
+                            >
+                                <AddBoxIcon />
+                            </IconButton>
+                        </label>
+                    </ImageListItem>
+                </ImageList>
             </Stack>
             <Agenda eventData={eventData} setEventData={setEventData}/>
-            {console.log("parent", eventData)}
             <EditableFAQ eventData={eventData} setEventData={setEventData}/>
+            <ConfirmModal />
             <Grid
                 container
                 direction="column"
@@ -411,7 +426,7 @@ export default function EditEventForm(props) {
                 sx={{ paddingTop: 10, paddingBottom: 2}}
             >
                 {!isLoading && (
-                    <Button variant="contained" size="large" color="primary" onClick={handleUpdateEvent}>
+                    <Button variant="contained" size="large" color="primary" onClick={updateOrConfirmEvent}>
                         Guardar
                     </Button>
                 )}

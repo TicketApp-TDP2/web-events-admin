@@ -42,11 +42,8 @@ export default function EditableFAQ({eventData, setEventData}) {
                 question: faqData.question,
                 answer: faqData.answer,
             };
-            console.log(newElement)
             const newFaq = eventData.FAQ.slice();
-            console.log(newFaq)
             newFaq.push(newElement);
-            console.log(newFaq)
             setEventData({...eventData, FAQ: newFaq});
             setFaqData(eventData.FAQ);
             handleCloseFAQ();
@@ -80,7 +77,6 @@ export default function EditableFAQ({eventData, setEventData}) {
     return (
         <>
             <Typography variant="h5" sx={{ marginRight: 2, marginLeft: 2 }}>FAQs</Typography>
-            {console.log("on render",eventData.FAQ)}
             {eventData.FAQ.map((faq, idx) => (
                 <FAQAccordion faq={faq} idx={idx} />
             ))}

@@ -53,7 +53,7 @@ export async function cancelEvent(id) {
   return await axios.put(`/events/${id}/cancel`);
 }
 
-export async function updateEvent({
+export async function updateEvent(id, {
   name,
   description,
   location,
@@ -84,7 +84,7 @@ export async function updateEvent({
     FAQ,
   };
 
-  const response = await axios.put(`/events`, body);
+  const response = await axios.put(`/events/${id}`, body);
 
   return response.data;
 }
