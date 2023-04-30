@@ -65,8 +65,6 @@ export default function Agenda({eventData, setEventData}) {
         
         const handleAddEditedAgenda = () => {
             const idx = openEditModal.idx
-            console.log("IDX", idx)
-            console.log("EDIT AGENDA", editAgenda)
             eventData.agenda.splice(idx, 1, editAgenda)
             setOpenEditModal({show: false, event: editAgenda, idx: 0});
         }
@@ -237,29 +235,33 @@ export default function Agenda({eventData, setEventData}) {
             </>
         )
     }
+    const onChangeTimeInit = (newValue) => {
+        setAgendaData({...agendaData, time_init: newValue})
+    }
 
-    const CreateModal = () => {
-        const onChangeTimeInit = (newValue) => {
-            setAgendaData({...agendaData, time_init: newValue})
-        }
-    
-        const onChangeOwner = (newValue) => {
-            setAgendaData({...agendaData, owner: newValue.target.value})
-        }
-    
-        const onChangeTimeEnd = (newValue) => {
-            setAgendaData({...agendaData, time_end: newValue})
-        }
-    
-        const onChangeDescription = (newValue) => {
-            setAgendaData({...agendaData, description: newValue.target.value})
-        }
-    
-        const onChangeTitle = (newValue) => {
-            setAgendaData({...agendaData, title: newValue.target.value})
-        }
+    const onChangeOwner = (newValue) => {
+        setAgendaData({...agendaData, owner: newValue.target.value})
+    }
 
-        return (
+    const onChangeTimeEnd = (newValue) => {
+        setAgendaData({...agendaData, time_end: newValue})
+    }
+
+    const onChangeDescription = (newValue) => {
+        setAgendaData({...agendaData, description: newValue.target.value})
+    }
+
+    const onChangeTitle = (newValue) => {
+        setAgendaData({...agendaData, title: newValue.target.value})
+    }
+
+    return (
+        <>
+            <Typography variant="h5" sx={{ marginRight: 2, marginLeft: 2 }}>Agenda</Typography>
+            {eventData.agenda.map((event, idx) => (
+                 <AgendaTimeline event={event} idx={idx} />
+            ))}
+            <EditModal />
             <Modal
                 open={openModal}
                 onClose={handleCloseModal}
@@ -366,19 +368,6 @@ export default function Agenda({eventData, setEventData}) {
                     </Box>
                 </Box>
             </Modal>
-        )
-    }
-
-    return (
-        <>
-            <Typography variant="h5" sx={{ marginRight: 2, marginLeft: 2 }}>Agenda</Typography>
-            {eventData.agenda.map((event, idx) => (
-                <>
-                    <AgendaTimeline event={event} idx={idx} />
-                </>
-            ))}
-            <CreateModal />
-            <EditModal />
             <Button variant="outlined" size="large" color="primary" onClick={handleOpenModal} startIcon={<AddIcon />}>Agregar agenda</Button>
         </>
     )
