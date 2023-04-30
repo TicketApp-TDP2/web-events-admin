@@ -1,4 +1,4 @@
-import {useNavigate, useParams} from "react-router-dom";
+import {useParams} from "react-router-dom";
 import {useEffect, useState} from "react";
 import {getEvent} from "../../services/eventService";
 import SideBar from "../../components/SideBar";
@@ -10,7 +10,6 @@ export default function EventEditScreen() {
     const { eventId } = useParams();
     const [event, setEvent] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-    const navigate = useNavigate();
 
     useEffect(() => {
         async function fetchData() {
@@ -35,7 +34,7 @@ export default function EventEditScreen() {
         }
         setIsLoading(true);
         fetchData();
-    }, []);
+    }, [eventId]);
 
     if (isLoading || !event) {
         return <></>

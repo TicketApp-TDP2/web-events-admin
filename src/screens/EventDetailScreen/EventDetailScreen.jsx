@@ -1,8 +1,6 @@
 import SideBar from "../../components/SideBar";
 import {
-  Avatar,
   Box,
-  Divider,
   Grid,
   ImageListItem,
   Paper,
@@ -10,7 +8,6 @@ import {
   ImageList,
   Button,
   CircularProgress,
-  Modal,
 } from "@mui/material";
 import { useParams } from "react-router-dom";
 import React, { useEffect, useRef, useState } from "react";
@@ -38,12 +35,9 @@ import parse from "html-react-parser";
 import { State } from "../../components/State";
 import { useNavigate } from "react-router-dom";
 import { publishEvent, cancelEvent } from "../../services/eventService";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import Swal from 'sweetalert2';
 import EditIcon from '@mui/icons-material/Edit';
 import Stack from '@mui/joy/Stack';
-
 
 dayjs.extend(customParseFormat);
 
@@ -56,6 +50,7 @@ export function EventDetailScreen() {
   const [mapReady, setMapReady] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const editableStates = ['Publicado', 'Borrador'];
 
   const handlePublishEvent = async () => {
     setIsLoading(true);
@@ -159,7 +154,8 @@ export function EventDetailScreen() {
                 {event.name}
               </Typography>
             </Grid>
-            <Grid item xs={1}>
+            {editableStates.includes(event.state) && (
+              <Grid item xs={1}>
               <Button variant="text" onClick={() => navigate(`/events/${eventId}/edit`)}>
                 <Stack direction="row" spacing={1}>
                   <Typography>Editar</Typography>
@@ -167,8 +163,8 @@ export function EventDetailScreen() {
                 </Stack>
               </Button>
             </Grid>
+            )}
           </Grid>
-
           <hr />
           <Paper
             style={{

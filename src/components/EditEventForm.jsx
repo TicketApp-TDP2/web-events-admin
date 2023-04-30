@@ -82,13 +82,6 @@ export default function EditEventForm(props) {
         setEventData({...eventData, images: eventData.images.filter((_, index) => index !== idx)})
     }
 
-    function addImage(url, isDefault) {
-        if (isDefault) {
-            setEventData({...eventData, images: [...eventData.images, { url, default: true }]});
-        }
-        setEventData({...eventData, images: [...eventData.images, { url, default: false }]});
-    }
-
     async function uploadFile(file) {
         const storageRef = ref(firebaseContext.storage, 'images/' + v4());
         await uploadBytes(storageRef, file);
