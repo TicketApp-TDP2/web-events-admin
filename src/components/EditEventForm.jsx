@@ -24,7 +24,7 @@ import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import {v4} from 'uuid';
-import {createEvent, updateEvent} from "../services/eventService";
+import {updateEvent} from "../services/eventService";
 import { UserContext } from "../providers/UserProvider";
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
@@ -34,6 +34,7 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import EditIcon from '@mui/icons-material/Edit';
+import Agenda from './EditableAgenda';
 
 const modalStyle = {
     position: 'absolute',
@@ -68,14 +69,28 @@ const types = {
     Convencion: "Convención",
 }
 
+const today = dayjs();
+const todayStartOfTheDay = today.startOf('day');
+const agendaDefault = {
+    time_init: todayStartOfTheDay,
+    time_end: todayStartOfTheDay,
+    owner: '',
+    description: '',
+    title: ''
+};
+const faqsDefault = {
+    question: '',
+    answer: ''
+}
+
 export default function EditEventForm(props) {
     const firebaseContext = useContext(FirebaseContext);
     const { user } = useContext(UserContext);
     const navigate = useNavigate();
     const [eventData, setEventData] = useState(props.oldEvent);
-    const [agendaData, setAgendaData] = useState(props.oldEvent.agenda);
+    const [agendaData, setAgendaData] = useState(agendaDefault);
     const [locationData, setLocationData] = useState(props.oldEvent.location);
-    const [faqData, setFaqData] = useState(props.oldEvent.FAQ);
+    const [faqData, setFaqData] = useState(faqsDefault);
     const [loadingImage, setLoadingImage] = useState(false);
     const [openModal, setOpenModal] = useState(false);
     const [openFAQ, setOpenFAQ] = useState(false);
@@ -90,8 +105,7 @@ export default function EditEventForm(props) {
         options: {
             componentRestrictions: { country: "ar" },
             types: ["address"]
-        },
-        defaultValue: eventData.location.description
+        }
     });
 
     const handleTypeChange = (event) => {
@@ -205,7 +219,7 @@ export default function EditEventForm(props) {
         }
     }
 
-    const handleOpenModal = () => {
+    /*const handleOpenModal = () => {
         setOpenModal(true);
     }
     const handleCloseModal = () => {
@@ -225,7 +239,7 @@ export default function EditEventForm(props) {
         setEventData({...eventData, agenda: newAgenda});
         setAgendaData(eventData.agenda);
         handleCloseModal();
-    }
+    }*/
 
     const handleUpdateEvent = async () => {
         setIsLoading(true);
@@ -264,7 +278,7 @@ export default function EditEventForm(props) {
             FAQ: eventData.FAQ,
         };
         console.log("newValues", newValues);
-        await updateEvent(newValues).then((result) => {
+        /*await updateEvent(newValues).then((result) => {
             setIsLoading(false);
             Swal.fire({
                 title: '¡Éxito!',
@@ -286,10 +300,10 @@ export default function EditEventForm(props) {
                 confirmButtonColor: 'red',
             });
             console.log("creation error", error)
-        });
+        });*/
     }
 
-    const AgendaTimeline = ({event, idx}) => {
+    /*const AgendaTimeline = ({event, idx}) => {
         return (
             <Timeline
                 sx={{
@@ -318,7 +332,7 @@ export default function EditEventForm(props) {
                 </TimelineItem>
             </Timeline>
         )
-    }
+    }*/
 
     const FAQAccordion = ({faq, idx}) => {
         return (
@@ -368,13 +382,20 @@ export default function EditEventForm(props) {
         )
     }
 
-    const AddAgendaModal = () => {
+    /*const AddAgendaModal = () => {
+        const onChangeTimeInit = (newValue) => {
+            console.log("lpm")
+            setAgendaData({...agendaData, time_init: newValue})
+        }
+        const onChangeOwner = (newValue) => {
+            console.log("lpm2")
+            setAgendaData({...agendaData, owner: newValue.target.value})
+        }
+
         return (
             <Modal
                 open={openModal}
                 onClose={handleCloseModal}
-                aria-labelledby="modal-modal-title"
-                aria-describedby="modal-modal-description"
             >
                 <Box sx={{
                     position: 'absolute',
@@ -387,17 +408,17 @@ export default function EditEventForm(props) {
                     boxShadow: 24,
                     p: 4
                 }}>
-                    <Typography id="modal-modal-title" variant="h6" component="h2">
+                    <Typography variant="h6" component="h2">
                         Agregar Agenda
                     </Typography>
                     <Divider/>
-                    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                    <Typography sx={{ mt: 2 }}>
                         Horario
                     </Typography>
                     <Grid container sx={{mt: 2}}>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <Grid item xs={1}>
-                                <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                                <Typography sx={{ mt: 2 }}>
                                     Desde:
                                 </Typography>
                             </Grid>
@@ -405,12 +426,12 @@ export default function EditEventForm(props) {
                                 <DesktopTimePicker
                                     label="Horario inicio"
                                     value={agendaData.time_init}
-                                    onChange={(newValue) => setAgendaData({...agendaData, time_init: newValue})}
+                                    onChange={onChangeTimeInit}
                                     ampm={false}
                                 />
                             </Grid>
                             <Grid item xs={1}>
-                                <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                                <Typography sx={{ mt: 2 }}>
                                     Hasta:
                                 </Typography>
                             </Grid>
@@ -426,7 +447,7 @@ export default function EditEventForm(props) {
                     </Grid>
                     <Grid container sx={{mt: 2}}>
                         <Grid item xs={3}>
-                            <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                            <Typography sx={{ mt: 2 }}>
                                 Nombre
                             </Typography>
                         </Grid>
@@ -435,13 +456,13 @@ export default function EditEventForm(props) {
                                 label="Responsable/Orador"
                                 sx={{width: "100%"}}
                                 value={agendaData.owner}
-                                onChange={(event) => setAgendaData({...agendaData, owner: event.target.value})}
+                                onChange={onChangeOwner}
                             />
                         </Grid>
                     </Grid>
                     <Grid container sx={{mt: 2}}>
                         <Grid item xs={3}>
-                            <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                            <Typography sx={{ mt: 2 }}>
                                 Titulo
                             </Typography>
                         </Grid>
@@ -456,13 +477,12 @@ export default function EditEventForm(props) {
                     </Grid>
                     <Grid container sx={{mt: 2}}>
                         <Grid item xs={3}>
-                            <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                            <Typography sx={{ mt: 2 }}>
                                 Descripción
                             </Typography>
                         </Grid>
                         <Grid item xs>
                             <TextField
-                                id="outlined-multiline-static"
                                 label="Descripción"
                                 multiline
                                 sx={{width: "100%"}}
@@ -480,7 +500,7 @@ export default function EditEventForm(props) {
                 </Box>
             </Modal>
         )
-    }
+    }*/
 
     const ImageViewer = () => {
         return (
@@ -521,16 +541,44 @@ export default function EditEventForm(props) {
         )
     }
 
-    return <>
-        <Stack spacing={2} sx={{ pl: 3, pr: 3 }}>
-            <ImageModal />
-            <Stack sx={{ pt: 2}}>
-                <TextField
-                    label="Nombre del evento"
-                    value={eventData.name}
-                    onChange={(event) => setEventData({...eventData, name: event.target.value})}
-                />
-            </Stack>
+    const EventTypeSelector = () => {
+        return (
+            <FormControl fullWidth>
+                <InputLabel id="demo-simple-select-label">Tipo</InputLabel>
+                <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={eventData.type}
+                    label="Tipo"
+                    onChange={handleTypeChange}
+                    sx={{width: "95%", pr:2}}
+                >
+                    <MenuItem value={types.Arte_y_Cultura}>{types.Arte_y_Cultura}</MenuItem>
+                    <MenuItem value={types.Musica}>{types.Musica}</MenuItem>
+                    <MenuItem value={types.Danza}>{types.Danza}</MenuItem>
+                    <MenuItem value={types.Moda}>{types.Moda}</MenuItem>
+                    <MenuItem value={types.Bellas_Artes}>{types.Bellas_Artes}</MenuItem>
+                    <MenuItem value={types.Cine}>{types.Cine}</MenuItem>
+                    <MenuItem value={types.Turismo}>{types.Turismo}</MenuItem>
+                    <MenuItem value={types.Deporte}>{types.Deporte}</MenuItem>
+                    <MenuItem value={types.Gastronomia}>{types.Gastronomia}</MenuItem>
+                    <MenuItem value={types.Educacion}>{types.Educacion}</MenuItem>
+                    <MenuItem value={types.Empresa}>{types.Empresa}</MenuItem>
+                    <MenuItem value={types.Capacitacion}>{types.Capacitacion}</MenuItem>
+                    <MenuItem value={types.Entretenimiento}>{types.Entretenimiento}</MenuItem>
+                    <MenuItem value={types.Tecnologia}>{types.Tecnologia}</MenuItem>
+                    <MenuItem value={types.Infantil}>{types.Infantil}</MenuItem>
+                    <MenuItem value={types.Debate}>{types.Debate}</MenuItem>
+                    <MenuItem value={types.Conmemoracion}>{types.Conmemoracion}</MenuItem>
+                    <MenuItem value={types.Religion}>{types.Religion}</MenuItem>
+                    <MenuItem value={types.Convencion}>{types.Convencion}</MenuItem>
+                </Select>
+            </FormControl>
+        )
+    }
+
+    const TimePickers = () => {
+        return (
             <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <Grid container rowSpacing={1}>
                     <Grid item xs>
@@ -563,39 +611,23 @@ export default function EditEventForm(props) {
                     </Grid>
                 </Grid>
             </LocalizationProvider>
+        )
+    }
+
+    return <>
+        <Stack spacing={2} sx={{ pl: 3, pr: 3 }}>
+            <ImageModal />
+            <Stack sx={{ pt: 2}}>
+                <TextField
+                    label="Nombre del evento"
+                    value={eventData.name}
+                    onChange={(event) => setEventData({...eventData, name: event.target.value})}
+                />
+            </Stack>
+            <TimePickers />
             <Grid container>
                 <Grid item xs>
-                    <FormControl fullWidth>
-                        <InputLabel id="demo-simple-select-label">Tipo</InputLabel>
-                        <Select
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
-                            value={eventData.type}
-                            label="Tipo"
-                            onChange={handleTypeChange}
-                            sx={{width: "95%", pr:2}}
-                        >
-                            <MenuItem value={types.Arte_y_Cultura}>{types.Arte_y_Cultura}</MenuItem>
-                            <MenuItem value={types.Musica}>{types.Musica}</MenuItem>
-                            <MenuItem value={types.Danza}>{types.Danza}</MenuItem>
-                            <MenuItem value={types.Moda}>{types.Moda}</MenuItem>
-                            <MenuItem value={types.Bellas_Artes}>{types.Bellas_Artes}</MenuItem>
-                            <MenuItem value={types.Cine}>{types.Cine}</MenuItem>
-                            <MenuItem value={types.Turismo}>{types.Turismo}</MenuItem>
-                            <MenuItem value={types.Deporte}>{types.Deporte}</MenuItem>
-                            <MenuItem value={types.Gastronomia}>{types.Gastronomia}</MenuItem>
-                            <MenuItem value={types.Educacion}>{types.Educacion}</MenuItem>
-                            <MenuItem value={types.Empresa}>{types.Empresa}</MenuItem>
-                            <MenuItem value={types.Capacitacion}>{types.Capacitacion}</MenuItem>
-                            <MenuItem value={types.Entretenimiento}>{types.Entretenimiento}</MenuItem>
-                            <MenuItem value={types.Tecnologia}>{types.Tecnologia}</MenuItem>
-                            <MenuItem value={types.Infantil}>{types.Infantil}</MenuItem>
-                            <MenuItem value={types.Debate}>{types.Debate}</MenuItem>
-                            <MenuItem value={types.Conmemoracion}>{types.Conmemoracion}</MenuItem>
-                            <MenuItem value={types.Religion}>{types.Religion}</MenuItem>
-                            <MenuItem value={types.Convencion}>{types.Convencion}</MenuItem>
-                        </Select>
-                    </FormControl>
+                    <EventTypeSelector />
                 </Grid>
                 <Grid item xs>
                     <TextField
@@ -617,6 +649,7 @@ export default function EditEventForm(props) {
                     inputRef={materialRef}
                     name="location"
                     label="Ubicación"
+                    defaultValue={eventData.location.description}
                 />
             </Stack>
             <Typography variant="h5" sx={{ marginRight: 2, marginLeft: 2 }}>Descripción</Typography>
@@ -625,8 +658,6 @@ export default function EditEventForm(props) {
                     editor={ ClassicEditor }
                     data={eventData.description}
                     onReady={ editor => {
-                        // You can store the "editor" and use when it is needed.
-                        //console.log( 'Editor is ready to use!', editor );
                         editor.editing.view.change((writer) => {
                             writer.setStyle(
                                 "height",
@@ -652,12 +683,15 @@ export default function EditEventForm(props) {
             <Stack spacing={2} mt={5}>
                 <ImageViewer />
             </Stack>
+            {/*
             <Typography variant="h5" sx={{ marginRight: 2, marginLeft: 2 }}>Agenda</Typography>
             <AddAgendaModal />
             {eventData.agenda.map((event, idx) => (
                 <AgendaTimeline event={event} idx={idx} />
             ))}
             <Button variant="outlined" size="large" color="primary" onClick={handleOpenModal} startIcon={<AddIcon />}>Agregar agenda</Button>
+            */}
+            <Agenda eventData={eventData} setEventData={setEventData}/>
             <Typography variant="h5" sx={{ marginRight: 2, marginLeft: 2 }}>FAQs</Typography>
             {eventData.FAQ.map((faq, idx) => (
                 <FAQAccordion faq={faq} idx={idx} />

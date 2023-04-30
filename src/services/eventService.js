@@ -84,7 +84,7 @@ export async function updateEvent({
     FAQ,
   };
 
-  const response = await axios.patch(`/events`, body);
+  const response = await axios.put(`/events`, body);
 
   return response.data;
 }
