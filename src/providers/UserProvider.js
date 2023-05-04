@@ -13,6 +13,7 @@ function UserProvider({ children }) {
     localStorage.setItem("user", JSON.stringify(response));
     console.log("response: " + JSON.stringify(response));
     setUser(response);
+    return response;
   }, []);
 
   const logout = () => {
