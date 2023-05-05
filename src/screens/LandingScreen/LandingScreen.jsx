@@ -57,6 +57,8 @@ export const LandingScreen = () => {
                         text: 'Tu usuario ha sido suspendido hasta nuevo aviso',
                         icon: 'error',
                         confirmButtonColor: 'red',
+                    }).then(function() {
+                        window.location.reload(true);
                     });
                 } else {
                     navigate('events');
