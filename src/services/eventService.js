@@ -88,3 +88,13 @@ export async function updateEvent(id, {
 
   return response.data;
 }
+
+export async function getUsersEnrolled(eventId) {
+  let users = [];
+  const bookings = await axios.get(`bookings/event/${eventId}`);
+  for (const booking of bookings.data) {
+    users.push(booking.reserver_id);
+  }
+
+  return users;
+}

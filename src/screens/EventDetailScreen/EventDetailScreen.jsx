@@ -10,8 +10,8 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { useParams } from "react-router-dom";
-import React, { useEffect, useRef, useState } from "react";
-import { getEvent } from "../../services/eventService";
+import React, {useContext, useEffect, useRef, useState} from "react";
+import {getEvent, getUsersEnrolled} from "../../services/eventService";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import Timeline from "@mui/lab/Timeline";
@@ -38,10 +38,14 @@ import { publishEvent, cancelEvent } from "../../services/eventService";
 import Swal from 'sweetalert2';
 import EditIcon from '@mui/icons-material/Edit';
 import Stack from '@mui/joy/Stack';
+import {MobileNotificationsContext} from "../../index";
+import { ref } from 'firebase/database';
+import {sendNotification} from "../../services/pushNotificationService";
 
 dayjs.extend(customParseFormat);
 
 export function EventDetailScreen() {
+  const notificationsContext = useContext(MobileNotificationsContext);
   const { eventId } = useParams();
   const [event, setEvent] = useState(null);
   const [imagePage, setImagePage] = useState(0);
@@ -82,6 +86,15 @@ export function EventDetailScreen() {
       });
   };
 
+  const notifyUsers = async () => {
+    const title = "Información importante";
+    const body = `El evento ${event.name} ha sido cancelado.`;
+    const users = await getUsersEnrolled(eventId);
+    users.forEach((userId) => {
+      sendNotification(title, body, userId);
+    })
+  }
+
   const handleCancelEvent = async () => {
     setIsLoading(true);
 
@@ -93,8 +106,9 @@ export function EventDetailScreen() {
           text: 'El evento se ha cancelado correctamente',
           icon: 'success',
           confirmButtonColor: 'green',
-        }).then(function() {
+        }).then(async function () {
           navigate("/events");
+          notifyUsers();
         });
         console.log("response", result);
       })
