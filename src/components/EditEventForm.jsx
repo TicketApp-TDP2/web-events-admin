@@ -9,7 +9,7 @@ import { FirebaseContext } from '../index';
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import DeleteIcon from '@mui/icons-material/Delete';
 import {v4} from 'uuid';
-import {updateEvent} from "../services/eventService";
+import {getUsersEnrolled, updateEvent} from "../services/eventService";
 import { UserContext } from "../providers/UserProvider";
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
@@ -18,6 +18,7 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import Agenda from './EditableAgenda';
 import EditableFAQ from "./EditableFAQ";
+import {sendNotification} from "../services/pushNotificationService";
 
 const modalStyle = {
     position: 'absolute',
@@ -57,6 +58,7 @@ export default function EditEventForm(props) {
     const { user } = useContext(UserContext);
     const navigate = useNavigate();
     const [eventData, setEventData] = useState(props.oldEvent);
+    const [oldEvent, setOldEvent] = useState(props.oldEvent);
     const [locationData, setLocationData] = useState(props.oldEvent.location);
     const [loadingImage, setLoadingImage] = useState(false);
     const [confirmUpdate, setConfirmUpdate] = useState(false);
@@ -152,6 +154,36 @@ export default function EditEventForm(props) {
         );
     }
 
+    const notifyChanges = async (newValues) => {
+        const dateChanged = (newValues.date !== oldEvent.date.format('YYYY-MM-DD'))
+        const startTimeChanged = (newValues.start_time !== oldEvent.start_time.format('HH:mm:ss'))
+        const locationChanged = (newValues.location.description !== oldEvent.location.description)
+        const title = "¡Atención!";
+        let body = `Ha habido cambios en tu evento. El evento ${oldEvent.name} se realizará `;
+        if (dateChanged && startTimeChanged && locationChanged) {
+            body = body + `el día ${newValues.date} en ${newValues.location.description} y comenzará a las ${newValues.start_time}hs`;
+        } else if (startTimeChanged && dateChanged) {
+            body = body + `el día ${newValues.date} a las ${newValues.start_time}hs`;
+        } else if (startTimeChanged && locationChanged) {
+            body = body + `en ${newValues.location.description} a las ${newValues.start_time}hs`;
+        } else if (dateChanged && locationChanged) {
+            body = body + `el día ${newValues.date} en ${newValues.location.description}`;
+        } else if (dateChanged) {
+            body = body + `el día ${newValues.date}`;
+        } else if (locationChanged) {
+            body = body + `en ${newValues.location.description}`;
+        } else if (startTimeChanged) {
+            body = body + `a las ${newValues.start_time}hs`;
+        } else {
+            body = `Ha habido cambios en el evento ${oldEvent.name}`;
+        }
+
+        const users = await getUsersEnrolled(oldEvent.id);
+        users.forEach((userId) => {
+            sendNotification(title, body, userId);
+        })
+    }
+
     const ConfirmModal = () => {
         return (
             <Modal
@@ -195,7 +227,6 @@ export default function EditEventForm(props) {
             }
             newAgenda.push(newElement);
         });
-        console.log("location", locationData);
         const newValues = {
             name: eventData.name,
             date: eventData.date.format('YYYY-MM-DD'),
@@ -212,6 +243,7 @@ export default function EditEventForm(props) {
             FAQ: eventData.FAQ,
         };
         console.log("newValues", newValues);
+        console.log("oldValues", oldEvent);
         await updateEvent(eventData.id, newValues).then((result) => {
             setIsLoading(false);
             Swal.fire({
@@ -220,6 +252,7 @@ export default function EditEventForm(props) {
                 icon: 'success',
                 confirmButtonColor: 'green',
             }).then(function() {
+                notifyChanges(newValues);
                 navigate(`/events/${eventData.id}`);
             });
             console.log("update response", result)
