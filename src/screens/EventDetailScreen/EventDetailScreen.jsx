@@ -40,7 +40,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import Stack from '@mui/joy/Stack';
 import {MobileNotificationsContext} from "../../index";
 import { ref } from 'firebase/database';
-import {sendNotification} from "../../services/pushNotificationService";
+import {cancelScheduledNotificationsForEvent, sendNotification} from "../../services/pushNotificationService";
 
 dayjs.extend(customParseFormat);
 
@@ -95,6 +95,7 @@ export function EventDetailScreen() {
     })
   }
 
+
   const handleCancelEvent = async () => {
     setIsLoading(true);
 
@@ -109,6 +110,7 @@ export function EventDetailScreen() {
         }).then(async function () {
           navigate("/events");
           notifyUsers();
+          cancelScheduledNotificationsForEvent(ref(notificationsContext.db), eventId);
         });
         console.log("response", result);
       })

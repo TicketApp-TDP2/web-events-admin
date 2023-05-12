@@ -31,7 +31,6 @@ export async function sendNotification(title, body, userId, schedule = null) {
     })
 }
 
-// falta validar
 export async function cancelScheduledNotificationsForEvent(refDb, eventId) {
     get(child(refDb, `scheduledNotifications/${eventId}`)).then(async (snapshot) => {
         if (snapshot.exists()) {
