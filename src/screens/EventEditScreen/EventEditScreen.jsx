@@ -28,7 +28,7 @@ export default function EventEditScreen() {
                     date: dayjs(res.data.date),
                     agenda: agenda
                 }
-                setEvent(oldEvent)
+                setEvent(oldEvent);
                 setIsLoading(false);
             });
         }

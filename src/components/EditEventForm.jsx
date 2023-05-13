@@ -5,11 +5,11 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DesktopTimePicker } from '@mui/x-date-pickers/DesktopTimePicker';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { FirebaseContext } from '../index';
+import {FirebaseContext, MobileNotificationsContext} from '../index';
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import DeleteIcon from '@mui/icons-material/Delete';
 import {v4} from 'uuid';
-import {updateEvent} from "../services/eventService";
+import {getUsersEnrolled, updateEvent} from "../services/eventService";
 import { UserContext } from "../providers/UserProvider";
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
@@ -18,6 +18,8 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import Agenda from './EditableAgenda';
 import EditableFAQ from "./EditableFAQ";
+import {rescheduleNotificationsForEvent, sendNotification, cancelScheduledNotificationsForEvent} from "../services/pushNotificationService";
+import { ref as mobileRef } from 'firebase/database';
 
 const modalStyle = {
     position: 'absolute',
@@ -54,9 +56,11 @@ const types = {
 
 export default function EditEventForm(props) {
     const firebaseContext = useContext(FirebaseContext);
+    const notificationsContext = useContext(MobileNotificationsContext);
     const { user } = useContext(UserContext);
     const navigate = useNavigate();
     const [eventData, setEventData] = useState(props.oldEvent);
+    const [oldEvent, setOldEvent] = useState(props.oldEvent);
     const [locationData, setLocationData] = useState(props.oldEvent.location);
     const [loadingImage, setLoadingImage] = useState(false);
     const [confirmUpdate, setConfirmUpdate] = useState(false);
@@ -152,6 +156,41 @@ export default function EditEventForm(props) {
         );
     }
 
+    const notifyChanges = async (newValues) => {
+        const dateChanged = (newValues.date !== oldEvent.date.format('YYYY-MM-DD'))
+        const startTimeChanged = (newValues.start_time !== oldEvent.start_time.format('HH:mm:ss'))
+        const locationChanged = (newValues.location.description !== oldEvent.location.description)
+        const title = "¡Atención!";
+        let body = `Ha habido cambios en tu evento. El evento ${oldEvent.name} se realizará `;
+
+        if (dateChanged) {
+            body = body + `el día ${newValues.date} `;
+        }
+
+        if (locationChanged) {
+            body = body + `en ${newValues.location.description} `;
+        }
+
+        if (startTimeChanged) {
+            body = body + `a las ${newValues.start_time}hs`;
+        }
+
+        if (startTimeChanged || dateChanged) {
+            const newDate = `${newValues.date} ${newValues.start_time}`;
+            cancelScheduledNotificationsForEvent(mobileRef(notificationsContext.db), oldEvent.id);
+            rescheduleNotificationsForEvent(mobileRef(notificationsContext.db), oldEvent.id, newDate, oldEvent.name);
+        }
+
+        if (!dateChanged && !locationChanged && !startTimeChanged) {
+            body = `Ha habido cambios en el evento ${oldEvent.name}`;
+        }
+
+        const users = await getUsersEnrolled(oldEvent.id);
+        users.forEach((userId) => {
+            sendNotification(title, body, userId);
+        })
+    }
+
     const ConfirmModal = () => {
         return (
             <Modal
@@ -195,7 +234,6 @@ export default function EditEventForm(props) {
             }
             newAgenda.push(newElement);
         });
-        console.log("location", locationData);
         const newValues = {
             name: eventData.name,
             date: eventData.date.format('YYYY-MM-DD'),
@@ -212,6 +250,7 @@ export default function EditEventForm(props) {
             FAQ: eventData.FAQ,
         };
         console.log("newValues", newValues);
+        console.log("oldValues", oldEvent);
         await updateEvent(eventData.id, newValues).then((result) => {
             setIsLoading(false);
             Swal.fire({
@@ -220,6 +259,7 @@ export default function EditEventForm(props) {
                 icon: 'success',
                 confirmButtonColor: 'green',
             }).then(function() {
+                notifyChanges(newValues);
                 navigate(`/events/${eventData.id}`);
             });
             console.log("update response", result)
