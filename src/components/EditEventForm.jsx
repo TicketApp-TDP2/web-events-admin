@@ -5,7 +5,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DesktopTimePicker } from '@mui/x-date-pickers/DesktopTimePicker';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { FirebaseContext } from '../index';
+import {FirebaseContext, MobileNotificationsContext} from '../index';
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import DeleteIcon from '@mui/icons-material/Delete';
 import {v4} from 'uuid';
@@ -18,7 +18,8 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import Agenda from './EditableAgenda';
 import EditableFAQ from "./EditableFAQ";
-import {sendNotification} from "../services/pushNotificationService";
+import {rescheduleNotificationsForEvent, sendNotification, cancelScheduledNotificationsForEvent} from "../services/pushNotificationService";
+import { ref as mobileRef } from 'firebase/database';
 
 const modalStyle = {
     position: 'absolute',
@@ -55,6 +56,7 @@ const types = {
 
 export default function EditEventForm(props) {
     const firebaseContext = useContext(FirebaseContext);
+    const notificationsContext = useContext(MobileNotificationsContext);
     const { user } = useContext(UserContext);
     const navigate = useNavigate();
     const [eventData, setEventData] = useState(props.oldEvent);
@@ -160,21 +162,26 @@ export default function EditEventForm(props) {
         const locationChanged = (newValues.location.description !== oldEvent.location.description)
         const title = "¡Atención!";
         let body = `Ha habido cambios en tu evento. El evento ${oldEvent.name} se realizará `;
-        if (dateChanged && startTimeChanged && locationChanged) {
-            body = body + `el día ${newValues.date} en ${newValues.location.description} y comenzará a las ${newValues.start_time}hs`;
-        } else if (startTimeChanged && dateChanged) {
-            body = body + `el día ${newValues.date} a las ${newValues.start_time}hs`;
-        } else if (startTimeChanged && locationChanged) {
-            body = body + `en ${newValues.location.description} a las ${newValues.start_time}hs`;
-        } else if (dateChanged && locationChanged) {
-            body = body + `el día ${newValues.date} en ${newValues.location.description}`;
-        } else if (dateChanged) {
-            body = body + `el día ${newValues.date}`;
-        } else if (locationChanged) {
-            body = body + `en ${newValues.location.description}`;
-        } else if (startTimeChanged) {
+
+        if (dateChanged) {
+            body = body + `el día ${newValues.date} `;
+        }
+
+        if (locationChanged) {
+            body = body + `en ${newValues.location.description} `;
+        }
+
+        if (startTimeChanged) {
             body = body + `a las ${newValues.start_time}hs`;
-        } else {
+        }
+
+        if (startTimeChanged || dateChanged) {
+            const newDate = `${newValues.date} ${newValues.start_time}`;
+            cancelScheduledNotificationsForEvent(mobileRef(notificationsContext.db), oldEvent.id);
+            rescheduleNotificationsForEvent(mobileRef(notificationsContext.db), oldEvent.id, newDate, oldEvent.name);
+        }
+
+        if (!dateChanged && !locationChanged && !startTimeChanged) {
             body = `Ha habido cambios en el evento ${oldEvent.name}`;
         }
 

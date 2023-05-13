@@ -1,5 +1,5 @@
 import axios from "./axios";
-import {child, get} from "firebase/database";
+import {child, get, update} from "firebase/database";
 
 const ONESIGNAL_URL = 'https://onesignal.com/api/v1/notifications';
 
@@ -51,20 +51,19 @@ export async function cancelScheduledNotificationsForEvent(refDb, eventId) {
     });
 }
 
-// falta validar
 export async function rescheduleNotificationsForEvent(refDb, eventId, newDate, eventName) {
-    let newScheduledNotifications = [];
     const title = '¿Estás listo?';
     const body = `¡Falta un día para el comienzo de tu evento ${eventName}!`;
 
     get(child(refDb, `scheduledNotifications/${eventId}`)).then(async (snapshot) => {
         if (snapshot.exists()) {
+            console.log("snapshot", snapshot.val());
             for (const userId of Object.keys(snapshot.val())) {
                 const sendResponse = await sendNotification(title, body, userId, newDate)
-                console.log(sendResponse);
-                newScheduledNotifications.push({
-                    userId: sendResponse.id
-                })
+                console.log("sendResponse!", sendResponse.data);
+                update(refDb, {
+                    [`scheduledNotifications/${eventId}/${userId}`]: sendResponse.data.id
+                }).then(res => console.log("updated scheduled", res))
             }
         } else {
             console.log("No data available");
@@ -72,6 +71,4 @@ export async function rescheduleNotificationsForEvent(refDb, eventId, newDate, e
     }).catch((error) => {
         console.error(error);
     });
-
-    // actualizar notification ids en db
 }
