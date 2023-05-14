@@ -98,3 +98,13 @@ export async function getUsersEnrolled(eventId) {
 
   return users;
 }
+
+export async function addCollaborator({id, collaborator_email}) {
+  const response = await axios.put(`events/${id}/add_collaborator/${collaborator_email}`);
+  return response.data
+}
+
+export async function removeCollaborator({id, collaborator_email}) {
+  const response = await axios.put(`events/${id}/remove_collaborator/${collaborator_email}`);
+  return response.data
+}
