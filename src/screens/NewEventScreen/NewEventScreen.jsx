@@ -1,12 +1,8 @@
 import { Divider, Typography, Box } from '@mui/material';
 import SideBar from '../../components/SideBar';
 import { NewEventForm } from '../../components/NewEventForm';
-//import { useNavigate } from 'react-router-dom';
 
 export const NewEventScreen = () => {
-    
-    //const navigate = useNavigate();
-
     return <>
     <Box sx={{ display: 'flex' }}>
         <SideBar/>

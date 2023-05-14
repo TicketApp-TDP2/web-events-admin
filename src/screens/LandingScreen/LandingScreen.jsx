@@ -7,6 +7,7 @@ import { FirebaseContext } from '../../index';
 import { getAdditionalUserInfo } from "firebase/auth";
 import { createOrganizer } from '../../services/organizerService';
 import { UserContext } from '../../providers/UserProvider';
+import Swal from 'sweetalert2';
 
 export const LandingScreen = () => {
     const firebaseContext = useContext(FirebaseContext);
@@ -47,9 +48,22 @@ export const LandingScreen = () => {
 
     async function fetchData() {
         if (userId) {
-            await fetchUser(userId);
-            setIsLoading(false);
-            navigate('events');
+            await fetchUser(userId).then((response) => {
+                console.log("RESPONSE", response)
+                setIsLoading(false);
+                if(response.suspended){
+                    Swal.fire({
+                        title: '¡Error!',
+                        text: 'Tu usuario ha sido suspendido hasta nuevo aviso',
+                        icon: 'error',
+                        confirmButtonColor: 'red',
+                    }).then(function() {
+                        window.location.reload(true);
+                    });
+                } else {
+                    navigate('events');
+                }
+            });
         }
     }
 

@@ -13,6 +13,7 @@ export async function getOrganizer(userId) {
     profession: response.data.profession,
     about_me: response.data.about_me,
     profile_picture: response.data.profile_picture,
+    suspended: response.data.suspended,
   }
 
   return user;

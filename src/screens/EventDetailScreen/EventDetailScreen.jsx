@@ -1,8 +1,6 @@
 import SideBar from "../../components/SideBar";
 import {
-  Avatar,
   Box,
-  Divider,
   Grid,
   ImageListItem,
   Paper,
@@ -10,11 +8,10 @@ import {
   ImageList,
   Button,
   CircularProgress,
-  Modal,
 } from "@mui/material";
 import { useParams } from "react-router-dom";
-import React, { useEffect, useRef, useState } from "react";
-import { getEvent } from "../../services/eventService";
+import React, {useContext, useEffect, useRef, useState} from "react";
+import {getEvent, getUsersEnrolled} from "../../services/eventService";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import Timeline from "@mui/lab/Timeline";
@@ -38,13 +35,20 @@ import parse from "html-react-parser";
 import { State } from "../../components/State";
 import { useNavigate } from "react-router-dom";
 import { publishEvent, cancelEvent } from "../../services/eventService";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import Swal from 'sweetalert2';
+import EditIcon from '@mui/icons-material/Edit';
+import Stack from '@mui/joy/Stack';
+import {MobileNotificationsContext} from "../../index";
+import { ref } from 'firebase/database';
+import {cancelScheduledNotificationsForEvent, sendNotification} from "../../services/pushNotificationService";
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import { EventsScreen } from "../EventsScreen/EventsScreen";
+import EditableCollaborators from "../../components/EditableCollaborators";
 
 dayjs.extend(customParseFormat);
 
 export function EventDetailScreen() {
+  const notificationsContext = useContext(MobileNotificationsContext);
   const { eventId } = useParams();
   const [event, setEvent] = useState(null);
   const [imagePage, setImagePage] = useState(0);
@@ -53,6 +57,7 @@ export function EventDetailScreen() {
   const [mapReady, setMapReady] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const editableStates = ['Publicado', 'Borrador'];
 
   const handlePublishEvent = async () => {
     setIsLoading(true);
@@ -84,6 +89,16 @@ export function EventDetailScreen() {
       });
   };
 
+  const notifyUsers = async () => {
+    const title = "Información importante";
+    const body = `El evento ${event.name} ha sido cancelado.`;
+    const users = await getUsersEnrolled(eventId);
+    users.forEach((userId) => {
+      sendNotification(title, body, userId);
+    })
+  }
+
+
   const handleCancelEvent = async () => {
     setIsLoading(true);
 
@@ -95,8 +110,10 @@ export function EventDetailScreen() {
           text: 'El evento se ha cancelado correctamente',
           icon: 'success',
           confirmButtonColor: 'green',
-        }).then(function() {
+        }).then(async function () {
           navigate("/events");
+          notifyUsers();
+          cancelScheduledNotificationsForEvent(ref(notificationsContext.db), eventId);
         });
         console.log("response", result);
       })
@@ -148,225 +165,264 @@ export function EventDetailScreen() {
       <SideBar />
       {event && (
         <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-          <Grid item style={{ flexGrow: "1" }}>
-            <Typography variant="h3" sx={{ marginRight: 2 }}>
-              {event.name}
-            </Typography>
-            <hr />
+          <Grid container direction="row"
+                justifyContent="space-between"
+                alignItems="center">
+            <Grid item xs={8}>
+              <Typography variant="h3" sx={{ marginRight: 2 }}>
+                {event.name}
+              </Typography>
+            </Grid>
+            {editableStates.includes(event.state) && (
+              <Grid item xs={1}>
+              <Button variant="text" onClick={() => navigate(`/events/${eventId}/edit`)}>
+                <Stack direction="row" spacing={1}>
+                  <Typography>Editar</Typography>
+                  <EditIcon fontSize="small" />
+                </Stack>
+              </Button>
+            </Grid>
+            )}
           </Grid>
-          <Paper
-            style={{
-              backgroundColor: "white",
-              borderRadius: 20,
-            }}
+          <hr />
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
           >
-            <Box sx={{ display: "flex" , marginLeft: 3, paddingTop: 3}}>
-              <Grid>
+            <Paper
+              style={{
+                backgroundColor: "white",
+                borderRadius: 20,
+                width: "60%"
+              }}
+            >
+              <Box sx={{ display: "flex", paddingTop: 3, justifyContent: "center", alignItems: "center"}}>
                 <Grid>
-                  <div
-                    style={{ display: "flex", justifyContent: "space-between" }}
-                  >
+                  <Grid container justifyContent="flex-end">
+                    <State state={event.state}></State>
+                  </Grid>
+                  <Grid>
+                    {/*<div
+                      style={{ display: "flex", justifyContent: "center", alignItems: "center" }}
+                    >
+                      <Typography
+                        variant="h3"
+                        sx={{ marginRight: 2, marginLeft: 2, marginTop: 2 }}
+                      >
+                        {event.name}
+                      </Typography>
+                      <State state={event.state}></State>
+                    </div>*/}
                     <Typography
                       variant="h6"
-                      sx={{ marginRight: 2, marginLeft: 2, marginTop: 2 }}
+                      sx={{ display: "flex", marginTop: 2 }}
                     >
                       <strong>Fecha:</strong> {event.date}
                     </Typography>
-                    <State state={event.state}></State>
-                  </div>
-                  <Typography
-                    variant="h6"
-                    sx={{ marginRight: 2, marginLeft: 2, marginTop: 2 }}
-                  >
-                    <strong>Vacantes:</strong> {event.vacants}
-                  </Typography>
-                  <Typography
-                    variant="h6"
-                    sx={{ marginRight: 2, marginLeft: 2, marginTop: 2 }}
-                  >
-                    <strong>Tipo:</strong> {event.type}
-                  </Typography>
-                </Grid>
-                <Grid mt={5}>
-                  <Typography
-                    variant="h6"
-                    sx={{ marginRight: 2, marginLeft: 2 }}
-                  >
-                    <strong>Descripción</strong>
-                  </Typography>
-                  <Typography
-                    variant="subtitle1"
-                    sx={{ marginRight: 2, marginLeft: 2 }}
-                  >
-                    {parse(event.description)}
-                  </Typography>
-                </Grid>
-                <Grid mt={5}>
-                  <Typography
-                    variant="h6"
-                    sx={{ marginRight: 2, marginLeft: 2 }}
-                  >
-                    <strong>Fotos</strong>
-                  </Typography>
-                  <Box
-                    style={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      padding: 20,
-                    }}
-                  >
-                    {event.images.length > 3 && imagePage > 0 && (
-                      <Box>
-                        <ChevronLeftIcon onClick={() => prevImagePage()} />
-                      </Box>
-                    )}
-                    <ImageList cols={3} gap={20}>
-                      {event.images
-                        .slice(imagePage * 3, imagePage * 3 + 3)
-                        .map((item, idx) => (
-                          <ImageListItem key={idx}>
-                            <img
-                              src={`${item}?w=164&h=164&fit=crop&auto=format`}
-                              alt=""
-                              srcSet={`${item}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
-                              loading="lazy"
-                              style={{
-                                borderRadius: 10,
-                                width: 250,
-                                height: 250,
-                              }}
-                            />
-                          </ImageListItem>
-                        ))}
-                    </ImageList>
-                    {event.images.length > 3 &&
-                      event.images.length > 3 * (imagePage + 1) && (
+                    <Typography
+                      variant="h6"
+                      sx={{ display: "flex", marginTop: 2 }}
+                    >
+                      <strong>Vacantes: </strong> {event.vacants}
+                    </Typography>
+                    <Typography
+                      variant="h6"
+                      sx={{ display: "flex", marginTop: 2 }}
+                    >
+                      <strong>Tipo: </strong> {event.type}
+                    </Typography>
+                  </Grid>
+                  <Grid mt={5}>
+                    <Typography
+                      variant="h6"
+                      sx={{ display: "flex", marginTop: 2 }}
+                    >
+                      <strong>Descripción</strong>
+                    </Typography>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{ display: "flex" }}
+                    >
+                      {parse(event.description)}
+                    </Typography>
+                  </Grid>
+                  <Grid mt={5}>
+                    <Typography
+                      variant="h6"
+                      sx={{ display: "flex", marginTop: 2, justifyContent: "center", alignItems: "center" }}
+                    >
+                      <strong>Fotos</strong>
+                    </Typography>
+                    <Box
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        padding: 20,
+                      }}
+                    >
+                      {event.images.length > 3 && imagePage > 0 && (
                         <Box>
-                          <ChevronRightIcon onClick={() => nextImagePage()} />
+                          <ChevronLeftIcon onClick={() => prevImagePage()} />
                         </Box>
                       )}
-                  </Box>
-                </Grid>
-                <Grid mt={5}>
-                  <Typography
-                    variant="h6"
-                    sx={{ marginRight: 2, marginLeft: 2, marginBottom: 1 }}
-                  >
-                    <strong>Ubicación</strong>
-                  </Typography>
-                  <Grid sx={{paddingLeft: 2}}>
-                    <GoogleMap
-                      apiKey={process.env.REACT_APP_GEO_APIKEY}
-                      defaultCenter={{
-                        lat: event.location.lat,
-                        lng: event.location.lng,
-                      }}
-                      defaultZoom={15}
-                      mapMinHeight="50vh"
-                      onGoogleApiLoaded={onGoogleApiLoaded}
-                    >
-                      <Marker
-                        key={1}
-                        lat={event.location.lat}
-                        lng={event.location.lng}
-                        markerId={event.location.description}
-                        className="marker"
-                      />
-                    </GoogleMap>
+                      <ImageList cols={3} gap={20}>
+                        {event.images
+                          .slice(imagePage * 3, imagePage * 3 + 3)
+                          .map((item, idx) => (
+                            <ImageListItem key={idx}>
+                              <img
+                                src={`${item}?w=164&h=164&fit=crop&auto=format`}
+                                alt=""
+                                srcSet={`${item}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
+                                loading="lazy"
+                                style={{
+                                  borderRadius: 10,
+                                  width: 250,
+                                  height: 250,
+                                }}
+                              />
+                            </ImageListItem>
+                          ))}
+                      </ImageList>
+                      {event.images.length > 3 &&
+                        event.images.length > 3 * (imagePage + 1) && (
+                          <Box>
+                            <ChevronRightIcon onClick={() => nextImagePage()} />
+                          </Box>
+                        )}
+                    </Box>
                   </Grid>
-                </Grid>
-                <Grid mt={5}>
-                  <Typography
-                    variant="h6"
-                    sx={{ marginRight: 2, marginLeft: 2 }}
-                  >
-                    <strong>Agenda</strong>
-                  </Typography>
-                  {event.agenda.map((horario, idx) => (
-                    <Timeline
-                      sx={{
-                        [`& .${timelineOppositeContentClasses.root}`]: {
-                          flex: 0.2,
-                        },
-                      }}
+                  <Grid mt={5}>
+                    <Typography
+                      variant="h6"
+                      sx={{ display: "flex", justifyContent: "center", alignItems: "center", marginBottom: 1 }}
                     >
-                      <TimelineItem>
-                        <TimelineOppositeContent color="textSecondary">
-                          {horario.time_init.substring(0, 5)} -{" "}
-                          {horario.time_end.substring(0, 5)}
-                        </TimelineOppositeContent>
-                        <TimelineSeparator>
-                          <TimelineDot />
-                          {event.agenda.length - 1 !== idx && (
-                            <TimelineConnector />
-                          )}
-                        </TimelineSeparator>
-                        <TimelineContent>{horario.title}</TimelineContent>
-                      </TimelineItem>
-                    </Timeline>
-                  ))}
-                </Grid>
-                <Grid mt={5} mb={5}>
-                  <Typography
-                    variant="h6"
-                    sx={{ marginRight: 2, marginLeft: 2 }}
-                  >
-                    <strong>FAQs</strong>
-                  </Typography>
-                  {event.FAQ.map((faq, idx) => (
-                    <Accordion style={{ margin: 10 }}>
-                      <AccordionSummary
-                        expandIcon={<ExpandMoreIcon sx={{ color: "white" }} />}
-                        aria-controls="panel1a-content"
-                        id="panel1a-header"
+                      <strong>Ubicación</strong>
+                    </Typography>
+                    <Grid sx={{paddingLeft: 2}}>
+                      <GoogleMap
+                        apiKey={process.env.REACT_APP_GEO_APIKEY}
+                        defaultCenter={{
+                          lat: event.location.lat,
+                          lng: event.location.lng,
+                        }}
+                        defaultZoom={15}
+                        mapMinHeight="50vh"
+                        onGoogleApiLoaded={onGoogleApiLoaded}
+                      >
+                        <Marker
+                          key={1}
+                          lat={event.location.lat}
+                          lng={event.location.lng}
+                          markerId={event.location.description}
+                          className="marker"
+                        />
+                      </GoogleMap>
+                    </Grid>
+                  </Grid>
+                  <Grid mt={5}>
+                    <Typography
+                      variant="h6"
+                      sx={{display: "flex", justifyContent: "center", alignItems: "center" }}
+                    >
+                      <strong>Agenda</strong>
+                    </Typography>
+                    {event.agenda.map((horario, idx) => (
+                      <Timeline
                         sx={{
-                          backgroundColor: "#8978C7",
-                          borderRadius: 1,
+                          [`& .${timelineOppositeContentClasses.root}`]: {
+                            flex: 0.2,
+                          },
                         }}
                       >
-                        <Typography color="white">{faq.question}</Typography>
-                      </AccordionSummary>
-                      <AccordionDetails sx={{ backgroundColor: "#e0e0e0" }}>
-                        <Typography>{faq.answer}</Typography>
-                      </AccordionDetails>
-                    </Accordion>
-                  ))}
-                </Grid>
-                <Grid
-                  container
-                  direction="row"
-                  alignItems="center"
-                  justifyContent="space-around"
-                  sx={{ paddingTop: 10, paddingBottom: 2 }}
-                >
-                  {event.state === "Borrador" && !isLoading && (
-                    <Button
-                      variant="contained"
-                      size="large"
-                      color="primary"
-                      onClick={handlePublishEvent}
+                        <TimelineItem>
+                          <TimelineOppositeContent color="textSecondary">
+                            {horario.time_init.substring(0, 5)} -{" "}
+                            {horario.time_end.substring(0, 5)}
+                          </TimelineOppositeContent>
+                          <TimelineSeparator>
+                            <TimelineDot />
+                            {event.agenda.length - 1 !== idx && (
+                              <TimelineConnector />
+                            )}
+                          </TimelineSeparator>
+                          <TimelineContent>{horario.title}</TimelineContent>
+                        </TimelineItem>
+                      </Timeline>
+                    ))}
+                  </Grid>
+                  <Grid mt={5} mb={5}>
+                    <Typography
+                      variant="h6"
+                      sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
                     >
-                      Publicar Evento
-                    </Button>
-                  )}
-                  {(event.state === "Borrador" ||
-                    event.state === "Publicado") &&
-                    !isLoading && (
+                      <strong>FAQs</strong>
+                    </Typography>
+                    {event.FAQ.map((faq, idx) => (
+                      <Accordion style={{ margin: 10 }}>
+                        <AccordionSummary
+                          expandIcon={<ExpandMoreIcon sx={{ color: "white" }} />}
+                          aria-controls="panel1a-content"
+                          id="panel1a-header"
+                          sx={{
+                            backgroundColor: "#8978C7",
+                            borderRadius: 1,
+                          }}
+                        >
+                          <Typography color="white">{faq.question}</Typography>
+                        </AccordionSummary>
+                        <AccordionDetails sx={{ backgroundColor: "#e0e0e0" }}>
+                          <Typography>{faq.answer}</Typography>
+                        </AccordionDetails>
+                      </Accordion>
+                    ))}
+                  </Grid>
+                  <Grid mt={5} mb={5}>
+                    <Typography
+                      variant="h6"
+                      sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
+                    >
+                      <strong>Colaboradores</strong>
+                    </Typography>
+                    <EditableCollaborators eventData={event} setEventData={setEvent}/>
+                  </Grid>
+                  <Grid
+                    container
+                    direction="row"
+                    alignItems="center"
+                    justifyContent="space-around"
+                    sx={{ display: "flex", justifyContent: "center", alignItems: "center", paddingTop: 10, paddingBottom: 5 }}
+                  >
+                    {event.state === "Borrador" && !isLoading && (
                       <Button
                         variant="contained"
                         size="large"
-                        color="error"
-                        onClick={handleCancelEvent}
+                        color="primary"
+                        onClick={handlePublishEvent}
                       >
-                        Cancelar Evento
+                        Publicar Evento
                       </Button>
                     )}
-                  {isLoading && <CircularProgress color="primary" />}
+                    {(event.state === "Borrador" ||
+                      event.state === "Publicado") &&
+                      !isLoading && (
+                        <Button
+                          variant="contained"
+                          size="large"
+                          color="error"
+                          onClick={handleCancelEvent}
+                        >
+                          Cancelar Evento
+                        </Button>
+                      )}
+                    {isLoading && <CircularProgress color="primary" />}
+                  </Grid>
                 </Grid>
-              </Grid>
-            </Box>
-          </Paper>
+              </Box>
+            </Paper>
+          </Box>
         </Box>
       )}
     </Box>
