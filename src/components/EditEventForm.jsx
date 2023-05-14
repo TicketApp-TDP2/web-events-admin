@@ -20,6 +20,7 @@ import Agenda from './EditableAgenda';
 import EditableFAQ from "./EditableFAQ";
 import {rescheduleNotificationsForEvent, sendNotification, cancelScheduledNotificationsForEvent} from "../services/pushNotificationService";
 import { ref as mobileRef } from 'firebase/database';
+import moment from "moment/moment";
 
 const modalStyle = {
     position: 'absolute',
@@ -177,8 +178,11 @@ export default function EditEventForm(props) {
 
         if (startTimeChanged || dateChanged) {
             const newDate = `${newValues.date} ${newValues.start_time}`;
+            const eventStartTime = moment(newDate);
+            const dayBeforeEvent = eventStartTime.subtract(1, 'days');
+            const sendAt = dayBeforeEvent.toString();
             cancelScheduledNotificationsForEvent(mobileRef(notificationsContext.db), oldEvent.id);
-            rescheduleNotificationsForEvent(mobileRef(notificationsContext.db), oldEvent.id, newDate, oldEvent.name);
+            rescheduleNotificationsForEvent(mobileRef(notificationsContext.db), oldEvent.id, sendAt, oldEvent.name);
         }
 
         if (!dateChanged && !locationChanged && !startTimeChanged) {

@@ -20,7 +20,7 @@ import { useContext, useEffect, useState } from "react";
 import { getEvents } from "../services/eventService";
 import { UserContext } from "../providers/UserProvider";
 import { useNavigate } from "react-router-dom";
-import { Button, Link } from "@mui/material";
+import { Button } from "@mui/material";
 import { State } from "./State";
 
 function TablePaginationActions(props) {
@@ -91,46 +91,6 @@ TablePaginationActions.propTypes = {
   page: PropTypes.number.isRequired,
 };
 
-function createData(name, location, date, capacity) {
-  return { name, location, date, capacity };
-}
-
-/*const rows = [
-  createData(
-    "Festival de Música en Vivo",
-    "Palermo, Buenos Aires",
-    "2023-05-24",
-    "150/300"
-  ),
-  createData(
-    "Conferencia Internacional de Tecnología y Innovación, es un nombre muy largo y sigue abajo",
-    "Nueva Córdoba, Córdoba",
-    "2023-05-24",
-    "150/300"
-  ),
-  createData("Eclair", "Palermo, Buenos Aires", "2023-05-24", "150/300"),
-  createData(
-    "Frozen yoghurt",
-    "Palermo, Buenos Aires",
-    "2023-05-24",
-    "150/300"
-  ),
-  createData("Gingerbread", "Palermo, Buenos Aires", "2023-05-24", "150/300"),
-  createData("Honeycomb", "Palermo, Buenos Aires", "2023-05-24", "150/300"),
-  createData(
-    "Ice cream sandwich",
-    "Palermo, Buenos Aires",
-    "2023-05-24",
-    "150/300"
-  ),
-  createData("Jelly Bean", "Palermo, Buenos Aires", "2023-05-24", "150/300"),
-  createData("KitKat", "Palermo, Buenos Aires", "2023-05-24", "150/300"),
-  createData("Lollipop", "Palermo, Buenos Aires", "2023-05-24", "150/300"),
-  createData("Marshmallow", "Palermo, Buenos Aires", "2023-05-24", "150/300"),
-  createData("Nougat", "Palermo, Buenos Aires", "2023-05-24", "150/300"),
-  createData("Oreo", "Palermo, Buenos Aires", "2023-05-24", "150/300"),
-];*/
-
 const rowsPerPage = 10;
 
 export const EventsTable = () => {
@@ -147,7 +107,8 @@ export const EventsTable = () => {
       if (user) {
         console.log("user.id: " + user.id);
         getEvents({ organizer: user.id }).then((res) => {
-          setRows(res.data);
+          const data = res.data.filter((event) => event.organizer === user.id);
+          setRows(data);
           setIsLoading(false);
         });
       }
