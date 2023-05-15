@@ -34,15 +34,6 @@ export default function EditableCollaborators({eventData, setEventData}) {
                 icon: 'success',
                 confirmButtonColor: 'green',
             });
-        }).catch((error) => {
-            setCollaboratorData(collaboratorDefault);
-            setIsLoading(false);
-            Swal.fire({
-                title: '¡Error!',
-                text: 'Ocurrio un error',
-                icon: 'error',
-                confirmButtonColor: 'red',
-            });
         });
     }
 
@@ -65,7 +56,6 @@ export default function EditableCollaborators({eventData, setEventData}) {
         //setEventData({...eventData, collaborators: newCollaborator});
         await addCollaborator(newElement).then((result) => {
             setCollaboratorData(collaboratorDefault);
-            //console.log("result add", result);
             setEventData(result);
             handleCloseCollaborators();
             setIsLoading(false);
@@ -79,9 +69,18 @@ export default function EditableCollaborators({eventData, setEventData}) {
             setCollaboratorData(collaboratorDefault);
             handleCloseCollaborators();
             setIsLoading(false);
+            let errorText = ""
+            switch (error.response.data.detail) {
+                case "collaborator_not_found":
+                    errorText = "No se encontro el colaborador. Verifique que se trate de un organizador registrado."
+                    break;
+                default:
+                    errorText = "Ocurrió un error inesperado. Porfavor vuelva a internar mas tarde"
+                    break;
+            }
             Swal.fire({
                 title: '¡Error!',
-                text: 'Ocurrio un error',
+                text: errorText,
                 icon: 'error',
                 confirmButtonColor: 'red',
             });
