@@ -9,6 +9,8 @@ export const State = (props) => {
     color = "#f5aaaa";
   } else if (state === "Finalizado") {
     color = "#fcefc2";
+  } else if (state === "Suspendido") {
+    color = "#ffb574";
   }
   return (
     <div

@@ -314,8 +314,25 @@ export const NewEventForm = () => {
             console.log("response", result)
         }).catch((error) => {
             setIsLoading(false);
-            let errorText = "Ocurrió un error."
-            errorText = errorText.concat(` ${error.response.data.detail[0].loc[1]}: ${error.response.data.detail[0].msg}`);
+            let errorText = "";
+            switch (error.response.data.detail) {
+                case "agenda_can_not_be_empty":
+                    errorText = "La agenda no puede estar vacia"
+                    break;
+                case "agenda_can_not_have_empty_spaces":
+                    errorText = "La agenda no puede tener espacios vacios"
+                    break;
+                case "agenda_can_not_have_overlap":
+                    errorText = "La agenda no puede tener superposicion de horarios entre dos eventos"
+                    break;
+                case "agenda_can_not_end_after_event_end":
+                    errorText = "La agenda no puede terminar despues del final del evento"
+                    break;
+                default:
+                    errorText = "Ocurrió un error inesperado. Porfavor vuelva a internar mas tarde"
+                    break;
+            }
+            //Hay que agregar mas casos
             Swal.fire({
                 title: '¡Error!',
                 text: errorText,

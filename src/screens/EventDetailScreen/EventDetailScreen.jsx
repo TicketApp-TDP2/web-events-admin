@@ -194,7 +194,7 @@ export function EventDetailScreen() {
               style={{
                 backgroundColor: "white",
                 borderRadius: 20,
-                width: "60%"
+                width: "80%"
               }}
             >
               <Box sx={{ display: "flex", paddingTop: 3, justifyContent: "center", alignItems: "center"}}>
@@ -391,31 +391,33 @@ export function EventDetailScreen() {
                   <Grid
                     container
                     direction="row"
-                    alignItems="center"
-                    justifyContent="space-around"
-                    sx={{ display: "flex", justifyContent: "center", alignItems: "center", paddingTop: 10, paddingBottom: 5 }}
+                    marginBottom={5}
                   >
                     {event.state === "Borrador" && !isLoading && (
-                      <Button
-                        variant="contained"
-                        size="large"
-                        color="primary"
-                        onClick={handlePublishEvent}
-                      >
-                        Publicar Evento
-                      </Button>
+                      <Grid item style={{ flexGrow: 1 }}>
+                        <Button
+                          variant="contained"
+                          size="large"
+                          color="primary"
+                          onClick={handlePublishEvent}
+                        >
+                          Publicar Evento
+                        </Button>
+                      </Grid>
                     )}
                     {(event.state === "Borrador" ||
                       event.state === "Publicado") &&
                       !isLoading && (
-                        <Button
-                          variant="contained"
-                          size="large"
-                          color="error"
-                          onClick={handleCancelEvent}
-                        >
-                          Cancelar Evento
-                        </Button>
+                        <Grid item xs={2.5}>
+                          <Button
+                            variant="contained"
+                            size="large"
+                            color="error"
+                            onClick={handleCancelEvent}
+                          >
+                            Cancelar Evento
+                          </Button>
+                        </Grid>
                       )}
                     {isLoading && <CircularProgress color="primary" />}
                   </Grid>
