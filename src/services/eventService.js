@@ -14,6 +14,7 @@ export async function createEvent({
   agenda,
   vacants,
   FAQ,
+  scan_time
 }) {
   const body = {
     name,
@@ -29,6 +30,7 @@ export async function createEvent({
     agenda,
     vacants,
     FAQ,
+    scan_time
   };
 
   const response = await axios.post(`/events`, body);
@@ -67,6 +69,7 @@ export async function updateEvent(id, {
   agenda,
   vacants,
   FAQ,
+  scan_time
 }) {
   const body = {
     name,
@@ -82,8 +85,9 @@ export async function updateEvent(id, {
     agenda,
     vacants,
     FAQ,
+    scan_time
   };
-
+console.log("BODY", body)
   const response = await axios.put(`/events/${id}`, body);
 
   return response.data;

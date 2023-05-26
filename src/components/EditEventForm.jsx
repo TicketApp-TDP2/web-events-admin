@@ -245,6 +245,7 @@ export default function EditEventForm(props) {
             location: locationData,
             start_time: eventData.start_time.format('HH:mm:ss'),
             end_time: eventData.end_time.format('HH:mm:ss'),
+            scan_time: parseInt(eventData.scan_time),
             vacants: parseInt(eventData.vacants),
             description: html,
             images: newImages,
@@ -332,6 +333,20 @@ export default function EditEventForm(props) {
                 </Grid>
             </LocalizationProvider>
             <Grid container>
+                <Grid item xs>
+                    <TextField
+                        id="outlined-number"
+                        label="Tiempo previo para ingreso"
+                        type="number"
+                        value={eventData.scan_time}
+                        onChange={(event) => setEventData({...eventData, scan_time: event.target.value})}
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                        sx={{width: "95%" }}
+                        helperText="Con cuántas horas de anticipación quieres que se habilite la entrada al evento"
+                    />
+                </Grid>
                 <Grid item xs>
                     <FormControl fullWidth>
                     <InputLabel id="demo-simple-select-label">Tipo</InputLabel>
