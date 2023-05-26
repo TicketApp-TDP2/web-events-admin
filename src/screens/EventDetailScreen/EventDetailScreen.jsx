@@ -336,6 +336,7 @@ export function EventDetailScreen() {
                             flex: 0.2,
                           },
                         }}
+                        key={idx}
                       >
                         <TimelineItem>
                           <TimelineOppositeContent color="textSecondary">
@@ -361,7 +362,7 @@ export function EventDetailScreen() {
                       <strong>FAQs</strong>
                     </Typography>
                     {event.FAQ.map((faq, idx) => (
-                      <Accordion style={{ margin: 10 }}>
+                      <Accordion style={{ margin: 10 }} key={idx}>
                         <AccordionSummary
                           expandIcon={<ExpandMoreIcon sx={{ color: "white" }} />}
                           aria-controls="panel1a-content"

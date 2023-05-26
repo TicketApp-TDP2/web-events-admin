@@ -54,6 +54,7 @@ const defaultValues = {
     location: {},
     start_time: todayStartOfTheDay,
     end_time: todayStartOfTheDay,
+    scan_time: 1,
     vacants: '',
     description: '',
     images_urls: [{
@@ -121,6 +122,7 @@ export const NewEventForm = () => {
     const { ref: materialRef } = usePlacesWidget({
         apiKey: process.env.REACT_APP_GEO_APIKEY,
         onPlaceSelected: (place) => {
+            console.log("PLACE", place)
             setLocationData({ description: place.formatted_address, lat: place.geometry.location.lat(), lng: place.geometry.location.lng() })
         },
         // inputAutocompleteValue: "country",
@@ -292,6 +294,7 @@ export const NewEventForm = () => {
             location: locationData,
             start_time: eventData.start_time.format('HH:mm:ss'),
             end_time: eventData.end_time.format('HH:mm:ss'),
+            scan_time: parseInt(eventData.scan_time),
             vacants: parseInt(eventData.vacants),
             description: html,
             images: newImages,
@@ -387,6 +390,20 @@ export const NewEventForm = () => {
         </LocalizationProvider>
         <Grid container>
             <Grid item xs>
+                <TextField
+                    id="outlined-number"
+                    label="Tiempo previo para ingreso"
+                    type="number"
+                    value={eventData.scan_time}
+                    onChange={(event) => setEventData({...eventData, scan_time: event.target.value})}
+                    InputLabelProps={{
+                        shrink: true,
+                    }}
+                    sx={{width: "95%" }}
+                    helperText="Con cuántas horas de anticipación quieres que se habilite la entrada al evento"
+                />
+            </Grid>
+            <Grid item xs>
                 <FormControl fullWidth>
                     <InputLabel id="demo-simple-select-label">Tipo</InputLabel>
                     <Select
@@ -421,16 +438,16 @@ export const NewEventForm = () => {
             </Grid>
             <Grid item xs>
                 <TextField
-                id="outlined-number"
-                label="Vacantes"
-                type="number"
-                value={eventData.vacants}
-                onChange={(event) => setEventData({...eventData, vacants: event.target.value})}
-                InputLabelProps={{
-                    shrink: true,
-                }}
-                InputProps={{ inputProps: { min: 0 } }}
-                sx={{width: "100%" }}
+                    id="outlined-number"
+                    label="Vacantes"
+                    type="number"
+                    value={eventData.vacants}
+                    onChange={(event) => setEventData({...eventData, vacants: event.target.value})}
+                    InputLabelProps={{
+                        shrink: true,
+                    }}
+                    InputProps={{ inputProps: { min: 0 } }}
+                    sx={{width: "100%" }}
                 />
             </Grid>
         </Grid>
@@ -628,6 +645,7 @@ export const NewEventForm = () => {
                     flex: 0.2,
                 },
                 }}
+                key={idx}
             >
                 <TimelineItem>
                 <TimelineOppositeContent color="textSecondary">
@@ -665,7 +683,7 @@ export const NewEventForm = () => {
             </>
         )}
         {eventData.faqs.map((faq, idx) => (
-            <Accordion>
+            <Accordion key={idx}>
                 <AccordionSummary
                 expandIcon={<ExpandMoreIcon sx={{color: "white"}}/>}
                 aria-controls="panel1a-content"

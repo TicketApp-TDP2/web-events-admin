@@ -219,7 +219,6 @@ export const EventsTable = () => {
               page={page}
               rowsPerPage={rowsPerPage}
               rowsPerPageOptions={[]}
-              component="div"
               labelDisplayedRows={({ from, to, count }) => page + 1}
               labelRowsPerPage={null}
               nextIconButtonProps={{
