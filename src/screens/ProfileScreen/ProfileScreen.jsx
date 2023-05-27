@@ -145,23 +145,27 @@ export const ProfileScreen = () => {
             </Grid>
           </Grid>
           <Divider variant="middle"/>
-            <Box sx={{ display: 'flex' }}>
-              <Typography variant="h5" sx={{ marginRight: 2, marginLeft: 2, marginTop: 2 }}>{userData.profession}</Typography>
+          <Typography variant="h5" sx={{ marginRight: 2, marginLeft: 2, marginTop: 2 }}>{userData.profession}</Typography>
+          <Box sx={{ display: 'flex' }}>
               <Grid
               container
               direction="column"
               alignItems="center"
               justifyContent="center"
-              paddingTop={10}
+              paddingTop={5}
               >
                   <Grid item>
-                      <Avatar alt={userData.first_name} src={userData.profile_picture} sx={{ width: 350, height: 350 }} />
+                      <Avatar alt={userData.first_name} src={userData.profile_picture} sx={{ width: 150, height: 150 }} />
                   </Grid>
-                  <Grid item sx={{ paddingTop: 2}}>
-                      <Paper elevation={10} sx={{ textAlign: 'center', backgroundColor: "#8978C7", lineHeight: '30px', padding: 2, width: "90%"}}>
-                          <Typography variant="h4" color="#fff" sx={{marginBottom: 1}}>Sobre mi</Typography>
-                          <Typography color="#fff">{userData.about_me}</Typography>
+                  <Grid item sx={{ paddingTop: 2, width: '80%', heigth: 100}}>
+                    {userData.about_me ? (
+                      <Paper elevation={10} sx={{ textAlign: 'left', lineHeight: '10px', padding: 2, marginTop: 5}}>
+                          <Typography variant="h6">Sobre mi</Typography>
+                          <Typography mt={2}>{userData.about_me}</Typography>
                       </Paper>
+                    ) : (
+                        <Typography mt={10}>Completa tu perfil así los usuarios pueden conocerte mejor</Typography>
+                    )}
                   </Grid>
               </Grid>
             </Box>
@@ -209,7 +213,7 @@ export const ProfileScreen = () => {
                     anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
                     
                 >
-                    <Avatar alt={userData.first_name} src={userData.profile_picture} sx={{ width: 250 , height: 250 }}/>
+                    <Avatar alt={userData.first_name} src={userData.profile_picture} sx={{ width: 150 , height: 150 }}/>
                 </Badge>
                 
             </Grid>

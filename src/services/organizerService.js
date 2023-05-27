@@ -53,6 +53,5 @@ export async function updateOrganizer({
   }
   const response = await axios.put(`/organizers/${id}`, body,);
 
-  console.log("response update organizer" + response)
   return response.data;
 }
