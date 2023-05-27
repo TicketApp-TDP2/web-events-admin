@@ -402,23 +402,12 @@ export function EventDetailScreen() {
                     container
                     direction="row"
                     marginBottom={5}
+                    justifyContent="space-around"
                   >
-                    {event.state === "Borrador" && !isLoading && (
-                      <Grid item style={{ flexGrow: 1 }}>
-                        <Button
-                          variant="contained"
-                          size="large"
-                          color="primary"
-                          onClick={handlePublishEvent}
-                        >
-                          Publicar Evento
-                        </Button>
-                      </Grid>
-                    )}
                     {(event.state === "Borrador" ||
                       event.state === "Publicado") &&
                       !isLoading && (
-                        <Grid item xs={2.5}>
+                        <Grid item>
                           <Button
                             variant="contained"
                             size="large"
@@ -428,6 +417,18 @@ export function EventDetailScreen() {
                             Cancelar Evento
                           </Button>
                         </Grid>
+                      )}
+                      {event.state === "Borrador" && !isLoading && (
+                          <Grid item>
+                            <Button
+                                variant="contained"
+                                size="large"
+                                color="primary"
+                                onClick={handlePublishEvent}
+                            >
+                              Publicar Evento
+                            </Button>
+                          </Grid>
                       )}
                     {isLoading && <CircularProgress color="primary" />}
                   </Grid>
