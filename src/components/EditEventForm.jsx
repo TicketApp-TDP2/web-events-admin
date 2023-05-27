@@ -226,6 +226,16 @@ export default function EditEventForm(props) {
     const handleUpdateEvent = async () => {
         setConfirmUpdate(false);
         setIsLoading(true);
+        if (eventData.FAQ.length === 0) {
+            Swal.fire({
+                title: '¡Error!',
+                text: "El evento debe contener FAQs",
+                icon: 'error',
+                confirmButtonColor: 'red',
+            });
+            setIsLoading(false);
+            return;
+        }
         let newImages = eventData.images.slice();
         const newAgenda = []
         eventData.agenda.forEach(agenda => {

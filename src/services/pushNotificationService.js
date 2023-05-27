@@ -57,10 +57,8 @@ export async function rescheduleNotificationsForEvent(refDb, eventId, newDate, e
 
     get(child(refDb, `scheduledNotifications/${eventId}`)).then(async (snapshot) => {
         if (snapshot.exists()) {
-            console.log("snapshot", snapshot.val());
             for (const userId of Object.keys(snapshot.val())) {
                 const sendResponse = await sendNotification(title, body, userId, newDate)
-                console.log("sendResponse!", sendResponse.data);
                 update(refDb, {
                     [`scheduledNotifications/${eventId}/${userId}`]: sendResponse.data.id
                 }).then(res => console.log("updated scheduled", res))

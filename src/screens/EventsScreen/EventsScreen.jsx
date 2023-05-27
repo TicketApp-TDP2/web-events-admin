@@ -14,7 +14,7 @@ export const EventsScreen = () => {
         <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
           <Grid
             container
-            sx={{ alignItems: "center", padding: 2, minHeight: 40 }}
+            sx={{ alignItems: "center", padding: 2, minHeight: 40, justifyContent: "space-between" }}
           >
             <Grid item style={{ flexGrow: "1" }}>
               <Typography
@@ -25,7 +25,7 @@ export const EventsScreen = () => {
                 Eventos
               </Typography>
             </Grid>
-            <Grid xs={2} item>
+            <Grid xs item style={{textAlign: 'right'}}>
               <Button
                 variant="contained"
                 size="large"

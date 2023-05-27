@@ -39,7 +39,6 @@ export async function createEvent({
 }
 
 export async function getEvents(params) {
-  console.log(params);
   return await axios.get("/events", { params });
 }
 
@@ -87,7 +86,7 @@ export async function updateEvent(id, {
     FAQ,
     scan_time
   };
-console.log("BODY", body)
+
   const response = await axios.put(`/events/${id}`, body);
 
   return response.data;
