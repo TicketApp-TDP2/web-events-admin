@@ -41,9 +41,8 @@ import Stack from '@mui/joy/Stack';
 import {MobileNotificationsContext} from "../../index";
 import { ref } from 'firebase/database';
 import {cancelScheduledNotificationsForEvent, sendNotification} from "../../services/pushNotificationService";
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import { EventsScreen } from "../EventsScreen/EventsScreen";
 import EditableCollaborators from "../../components/EditableCollaborators";
+import moment from "moment/moment";
 
 dayjs.extend(customParseFormat);
 
@@ -54,7 +53,7 @@ export function EventDetailScreen() {
   const [imagePage, setImagePage] = useState(0);
 
   const mapRef = useRef(null);
-  const [mapReady, setMapReady] = useState(false);
+  const [_mapReady, setMapReady] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const editableStates = ['Publicado', 'Borrador'];
@@ -194,43 +193,52 @@ export function EventDetailScreen() {
               style={{
                 backgroundColor: "white",
                 borderRadius: 20,
-                width: "95%"
+                width: "100%",
+                padding: 20
               }}
             >
-              <Box sx={{ display: "flex", paddingTop: 3, justifyContent: "center", alignItems: "center"}}>
+              <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center"}}>
                 <Grid>
                   <Grid container justifyContent="flex-end">
                     <State state={event.state}></State>
                   </Grid>
                   <Grid>
-                    {/*<div
-                      style={{ display: "flex", justifyContent: "center", alignItems: "center" }}
-                    >
-                      <Typography
-                        variant="h3"
-                        sx={{ marginRight: 2, marginLeft: 2, marginTop: 2 }}
-                      >
-                        {event.name}
-                      </Typography>
-                      <State state={event.state}></State>
-                    </div>*/}
                     <Typography
                       variant="h6"
                       sx={{ display: "flex", marginTop: 2 }}
                     >
-                      <strong>Fecha:</strong> {event.date}
+                      <strong>Fecha:&nbsp;</strong>{moment(event.date).format("DD-MM-YYYY")}
+                    </Typography>
+                    <Typography
+                        variant="h6"
+                        sx={{ display: "flex", marginTop: 2 }}
+                    >
+                      <strong>Hora de inicio:&nbsp;</strong> {" "} {event.start_time.slice(0, -3)}
+                    </Typography>
+                    <Typography
+                        variant="h6"
+                        sx={{ display: "flex", marginTop: 2 }}
+                    >
+                      <strong>Hora de fin:&nbsp;</strong> {" "} {event.end_time.slice(0, -3)}
+                    </Typography>
+                    <Typography
+                        variant="h6"
+                        sx={{ display: "flex", marginTop: 2 }}
+                    >
+                      {console.log(moment(event.start_time).subtract(event.scan_time, 'hours'))}
+                      <strong>Hora de ingreso:&nbsp;</strong> {" "} {moment(event.date + ' ' + event.start_time).subtract(event.scan_time, 'hours').format("HH:mm")}
                     </Typography>
                     <Typography
                       variant="h6"
                       sx={{ display: "flex", marginTop: 2 }}
                     >
-                      <strong>Vacantes: </strong> {event.vacants}
+                      <strong>Vacantes:&nbsp;</strong> {event.vacants}
                     </Typography>
                     <Typography
                       variant="h6"
                       sx={{ display: "flex", marginTop: 2 }}
                     >
-                      <strong>Tipo: </strong> {event.type}
+                      <strong>Tipo:&nbsp;</strong> {event.type}
                     </Typography>
                   </Grid>
                   <Grid mt={5}>
@@ -311,6 +319,7 @@ export function EventDetailScreen() {
                         defaultZoom={15}
                         mapMinHeight="50vh"
                         onGoogleApiLoaded={onGoogleApiLoaded}
+                        options={{ gestureHandling: 'none', disableDefaultUI: true}}
                       >
                         <Marker
                           key={1}
@@ -336,6 +345,7 @@ export function EventDetailScreen() {
                             flex: 0.2,
                           },
                         }}
+                        key={idx}
                       >
                         <TimelineItem>
                           <TimelineOppositeContent color="textSecondary">
@@ -361,7 +371,7 @@ export function EventDetailScreen() {
                       <strong>FAQs</strong>
                     </Typography>
                     {event.FAQ.map((faq, idx) => (
-                      <Accordion style={{ margin: 10 }}>
+                      <Accordion style={{ margin: 10 }} key={idx}>
                         <AccordionSummary
                           expandIcon={<ExpandMoreIcon sx={{ color: "white" }} />}
                           aria-controls="panel1a-content"
@@ -392,23 +402,12 @@ export function EventDetailScreen() {
                     container
                     direction="row"
                     marginBottom={5}
+                    justifyContent="space-around"
                   >
-                    {event.state === "Borrador" && !isLoading && (
-                      <Grid item style={{ flexGrow: 1 }}>
-                        <Button
-                          variant="contained"
-                          size="large"
-                          color="primary"
-                          onClick={handlePublishEvent}
-                        >
-                          Publicar Evento
-                        </Button>
-                      </Grid>
-                    )}
                     {(event.state === "Borrador" ||
                       event.state === "Publicado") &&
                       !isLoading && (
-                        <Grid item xs={2.5}>
+                        <Grid item>
                           <Button
                             variant="contained"
                             size="large"
@@ -418,6 +417,18 @@ export function EventDetailScreen() {
                             Cancelar Evento
                           </Button>
                         </Grid>
+                      )}
+                      {event.state === "Borrador" && !isLoading && (
+                          <Grid item>
+                            <Button
+                                variant="contained"
+                                size="large"
+                                color="primary"
+                                onClick={handlePublishEvent}
+                            >
+                              Publicar Evento
+                            </Button>
+                          </Grid>
                       )}
                     {isLoading && <CircularProgress color="primary" />}
                   </Grid>
