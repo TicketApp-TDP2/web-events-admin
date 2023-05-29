@@ -3,7 +3,7 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  Link, Typography, Grid, Box, Stack,
+  Link, Typography, Stack,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
@@ -11,7 +11,7 @@ import EventNoteIcon from '@mui/icons-material/EventNote';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { UserContext } from "../providers/UserProvider";
 
 const DRAWER_WIDTH = 225;

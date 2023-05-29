@@ -46,28 +46,27 @@ export const LandingScreen = () => {
         console.log("fetch user", userId);
     }
 
-    async function fetchData() {
-        if (userId) {
-            await fetchUser(userId).then((response) => {
-                console.log("RESPONSE", response)
-                setIsLoading(false);
-                if(response.suspended){
-                    Swal.fire({
-                        title: '¡Error!',
-                        text: 'Tu usuario ha sido suspendido hasta nuevo aviso',
-                        icon: 'error',
-                        confirmButtonColor: 'red',
-                    }).then(function() {
-                        window.location.reload(true);
-                    });
-                } else {
-                    navigate('events');
-                }
-            });
-        }
-    }
-
     useEffect(() => {
+        async function fetchData() {
+            if (userId) {
+                await fetchUser(userId).then((response) => {
+                    console.log("RESPONSE", response)
+                    setIsLoading(false);
+                    if(response.suspended){
+                        Swal.fire({
+                            title: '¡Error!',
+                            text: 'Tu usuario ha sido suspendido hasta nuevo aviso',
+                            icon: 'error',
+                            confirmButtonColor: 'red',
+                        }).then(function() {
+                            window.location.reload(true);
+                        });
+                    } else {
+                        navigate('events');
+                    }
+                });
+            }
+        }
         fetchData();
     }, [userId])
 
