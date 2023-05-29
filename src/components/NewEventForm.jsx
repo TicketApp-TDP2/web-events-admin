@@ -1,5 +1,5 @@
 import { Stack, TextField, FormControl, Select,MenuItem, InputLabel, Grid, Typography, ImageList, ImageListItem, IconButton, Button, Box, Divider, CircularProgress, Modal } from "@mui/material";
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -28,9 +28,7 @@ import { createEvent } from "../services/eventService";
 import { UserContext } from "../providers/UserProvider";
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import AutoComplete, {usePlacesWidget} from "react-google-autocomplete";
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import  {usePlacesWidget} from "react-google-autocomplete";
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
@@ -268,6 +266,16 @@ export const NewEventForm = () => {
 
     const handleCreateEvent = async () => {
         setIsLoading(true);
+        if (eventData.faqs.length === 0) {
+            Swal.fire({
+                title: '¡Error!',
+                text: "El evento debe contener FAQs",
+                icon: 'error',
+                confirmButtonColor: 'red',
+            });
+            setIsLoading(false);
+            return;
+        }
         let newImages = eventData.images_urls.slice();
         newImages.shift();
         let previewImage = "";
@@ -318,22 +326,57 @@ export const NewEventForm = () => {
         }).catch((error) => {
             setIsLoading(false);
             let errorText = "";
-            switch (error.response.data.detail) {
-                case "agenda_can_not_be_empty":
-                    errorText = "La agenda no puede estar vacia"
-                    break;
-                case "agenda_can_not_have_empty_spaces":
-                    errorText = "La agenda no puede tener espacios vacios"
-                    break;
-                case "agenda_can_not_have_overlap":
-                    errorText = "La agenda no puede tener superposicion de horarios entre dos eventos"
-                    break;
-                case "agenda_can_not_end_after_event_end":
-                    errorText = "La agenda no puede terminar despues del final del evento"
-                    break;
-                default:
-                    errorText = "Ocurrió un error inesperado. Porfavor vuelva a internar mas tarde"
-                    break;
+            console.log("error detail", error.response.data.detail[0].type)
+            if (error.response.data.detail.constructor === Array) {
+                switch (error.response.data.detail[0].type) {
+                    case "type_error.enum":
+                        errorText = "El tipo de evento no es valido, seleccione algun tipo de la lista"
+                        break;
+                    case "type_error.none.not_allowed":
+                        errorText = "La cantidad de vacantes no puede ser nula, seleccione un valor"
+                        break;
+                    case "value_error.any_str.min_length":
+                        switch (error.response.data.detail[0].loc[1]) {
+                            case "name":
+                                errorText = "El nombre del evento debe tener al menos 3 caracteres"
+                                break;
+                            case "location":
+                                errorText = "La ubicación del evento debe tener al menos 3 caracteres"
+                                break;
+                            case "description":
+                                errorText = "La descripción del evento debe tener al menos 3 caracteres"
+                                break;
+                            case "preview_image":
+                                errorText = "Debe haber al menos una imagen del evento"
+                                break;
+                            default:
+                                errorText = "Ocurrió un error inesperado. Porfavor vuelva a internar mas tarde"
+                                break;
+                        }
+                        break;
+                    default:
+                        errorText = "Ocurrió un error inesperado. Porfavor vuelva a internar mas tarde"
+                        break;
+                }
+            } else {
+                switch (error.response.data.detail) {
+                    case "agenda_can_not_be_empty":
+                        errorText = "La agenda no puede estar vacia"
+                        break;
+                    case "agenda_can_not_have_empty_spaces":
+                        errorText = "La agenda no puede tener espacios vacios"
+                        break;
+                    case "agenda_can_not_have_overlap":
+                        errorText = "La agenda no puede tener superposicion de horarios entre dos eventos"
+                        break;
+                    case "agenda_can_not_end_after_event_end":
+                        errorText = "La agenda no puede terminar despues del final del evento"
+                        break;
+                    default:
+                        errorText = "Ocurrió un error inesperado. Porfavor vuelva a internar mas tarde"
+                        break;
+                }
+
             }
             //Hay que agregar mas casos
             Swal.fire({

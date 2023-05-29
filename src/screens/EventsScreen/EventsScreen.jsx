@@ -1,4 +1,4 @@
-import { Button, Typography, Grid, Box, Divider } from '@mui/material';
+import { Button, Typography, Grid, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SideBar from '../../components/SideBar';

@@ -236,6 +236,26 @@ export default function EditEventForm(props) {
             setIsLoading(false);
             return;
         }
+        if (eventData.agenda.length === 0) {
+            Swal.fire({
+                title: '¡Error!',
+                text: "El evento debe contener una agenda",
+                icon: 'error',
+                confirmButtonColor: 'red',
+            });
+            setIsLoading(false);
+            return;
+        }
+        if (eventData.images.length === 0) {
+            Swal.fire({
+                title: '¡Error!',
+                text: "El evento debe contener al menos una imagen",
+                icon: 'error',
+                confirmButtonColor: 'red',
+            });
+            setIsLoading(false);
+            return;
+        }
         let newImages = eventData.images.slice();
         const newAgenda = []
         eventData.agenda.forEach(agenda => {
@@ -280,15 +300,66 @@ export default function EditEventForm(props) {
             console.log("update response", result)
         }).catch((error) => {
             setIsLoading(false);
-            let errorText = "Ocurrió un error."
-            errorText = errorText.concat(` ${error.response.data.detail[0].loc[1]}: ${error.response.data.detail[0].msg}`);
+            let errorText = "";
+            console.log("error detail", error.response.data.detail[0].type)
+            if (error.response.data.detail.constructor === Array) {
+                switch (error.response.data.detail[0].type) {
+                    case "type_error.enum":
+                        errorText = "El tipo de evento no es valido, seleccione algun tipo de la lista"
+                        break;
+                    case "value_error.number.not_ge":
+                        errorText = "La cantidad de vacantes no puede ser nula, seleccione un valor"
+                        break;
+                    case "value_error.any_str.min_length":
+                        switch (error.response.data.detail[0].loc[1]) {
+                            case "name":
+                                errorText = "El nombre del evento debe tener al menos 3 caracteres"
+                                break;
+                            case "location":
+                                errorText = "La ubicación del evento debe tener al menos 3 caracteres"
+                                break;
+                            case "description":
+                                errorText = "La descripción del evento debe tener al menos 3 caracteres"
+                                break;
+                            case "preview_image":
+                                errorText = "Debe haber al menos una imagen del evento"
+                                break;
+                            default:
+                                errorText = "Ocurrió un error inesperado. Porfavor vuelva a internar mas tarde"
+                                break;
+                        }
+                        break;
+                    default:
+                        errorText = "Ocurrió un error inesperado. Porfavor vuelva a internar mas tarde"
+                        break;
+                }
+            } else {
+                switch (error.response.data.detail) {
+                    case "agenda_can_not_be_empty":
+                        errorText = "La agenda no puede estar vacia"
+                        break;
+                    case "agenda_can_not_have_empty_spaces":
+                        errorText = "La agenda no puede tener espacios vacios"
+                        break;
+                    case "agenda_can_not_have_overlap":
+                        errorText = "La agenda no puede tener superposicion de horarios entre dos eventos"
+                        break;
+                    case "agenda_can_not_end_after_event_end":
+                        errorText = "La agenda no puede terminar despues del final del evento"
+                        break;
+                    default:
+                        errorText = "Ocurrió un error inesperado. Porfavor vuelva a internar mas tarde"
+                        break;
+                }
+
+            }
             Swal.fire({
                 title: '¡Error!',
                 text: errorText,
                 icon: 'error',
                 confirmButtonColor: 'red',
             });
-            console.log("update error", error)
+            console.log("creation error", error);
         });
     }
 
