@@ -372,6 +372,15 @@ export const NewEventForm = () => {
                     case "agenda_can_not_end_after_event_end":
                         errorText = "La agenda no puede terminar despues del final del evento"
                         break;
+                    case "end_time_must_be_greater_than_start_time":
+                        errorText = "La hora de finalización debe ser mayor a la hora de inicio"
+                        break;
+                    case "agenda_can_not_end_before_event_ends":
+                        errorText = "La agenda no puede terminar antes del final del evento"
+                        break;
+                    case "time_can_not_be_updated_without_agenda":
+                        errorText = "No se puede actualizar el horario del evento sin editar la agenda"
+                        break;
                     default:
                         errorText = "Ocurrió un error inesperado. Porfavor vuelva a internar mas tarde"
                         break;
